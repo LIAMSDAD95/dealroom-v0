@@ -1,0 +1,16 @@
+:root {
+  --bg: #232320;
+  --grid-line: rgba(255, 255, 255, 0.045);
+  --stone: #c7c4ba;
+  --ink: #141210;
+  --cream: #f2eee6;
+  --mustard: #eaae47;
+  --coral: #e2694b;
+  --forest: #465e49;
+  --danger: #c0392b;
+
+  --border-width: 2.5px;
+  --border-color: #0a0a09;
+  --shadow-offset: 6px;
+  --shadow-color: rgba(0, 0, 0, 0.45);
+}
