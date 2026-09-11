@@ -14,7 +14,7 @@ Phase 0 : 15-20 playtesteurs (réseau personnel, indie gamedev, fintwit francoph
 
 ## Comment
 
-Développement solo avec Claude Code, horizon 1-2 mois, sans budget. Le projet se découpe en 5 domaines séparés — voir [docs/architecture.md](docs/architecture.md) :
+Développement solo avec Claude Code, horizon 1-2 mois, sans budget. Stack : **React + Vite + TypeScript + CSS Modules** (variables CSS pour les tokens visuels, voir [ADR-001](Claude/memory/adr.md)). Le projet se découpe en 5 domaines séparés — voir [docs/architecture.md](docs/architecture.md) :
 
 1. **Game Loop & State Machine** — boucle de run, ressources, résolutions.
 2. **Signals & Content** — archétypes fondateurs/LPs, dialogues, signaux.

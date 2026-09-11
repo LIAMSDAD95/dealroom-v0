@@ -6,7 +6,7 @@
 
 ## Vue d'ensemble
 
-Le jeu tourne intégralement côté client (web desktop, sauvegarde locale navigateur, pas de backend serveur en Phase 0). Cinq domaines se partagent la logique et l'état :
+Le jeu tourne intégralement côté client (web desktop, sauvegarde locale navigateur, pas de backend serveur en Phase 0), sur une stack **React + Vite + TypeScript + CSS Modules** (voir [ADR-001](../Claude/memory/adr.md)). Cinq domaines se partagent la logique et l'état :
 
 ```
 ┌─────────────────────┐     ┌──────────────────────┐
