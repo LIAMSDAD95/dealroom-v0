@@ -1,0 +1,8 @@
+/* Les fichiers @fontsource sont importés en TypeScript dans src/main.tsx
+   (les @import CSS ne résolvent pas les packages npm via PostCSS). */
+
+:root {
+  --font-display: 'Big Shoulders Display', sans-serif;
+  --font-pixel: 'Press Start 2P', monospace;
+  --font-mono: 'IBM Plex Mono', monospace;
+}
