@@ -1,0 +1,106 @@
+.screen {
+  min-height: 100vh;
+  color: var(--cream);
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 1.5rem 2rem;
+}
+
+.logoMark {
+  width: 14px;
+  height: 14px;
+  background: var(--coral);
+  border-radius: 3px;
+}
+
+.logoText {
+  font-family: var(--font-display);
+  font-weight: 900;
+  font-size: 1.1rem;
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+}
+
+.content {
+  max-width: 720px;
+  margin: 3rem auto 5rem;
+  padding: 0 2rem;
+}
+
+.pixelLabel {
+  font-family: var(--font-pixel);
+  font-size: 0.65rem;
+  color: var(--mustard);
+  margin-bottom: 0.75rem;
+}
+
+.title {
+  font-family: var(--font-display);
+  font-weight: 900;
+  text-transform: uppercase;
+  font-size: 3rem;
+  line-height: 1.05;
+  margin: 0 0 0.75rem;
+}
+
+.subtitle {
+  font-family: var(--font-mono);
+  color: var(--stone);
+  max-width: 46ch;
+  margin: 0 0 2.5rem;
+}
+
+.group {
+  margin-bottom: 2rem;
+}
+
+.groupLabel {
+  font-family: var(--font-pixel);
+  font-size: 0.65rem;
+  color: var(--stone);
+  margin-bottom: 0.9rem;
+}
+
+.chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+}
+
+.confirmButton {
+  font-family: var(--font-mono);
+  font-weight: 700;
+  font-size: 0.9rem;
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+
+  width: 100%;
+  padding: 1rem;
+  margin-top: 1rem;
+  border-radius: 10px;
+  border: var(--border-width) solid var(--border-color);
+  box-shadow: var(--shadow-offset-btn) var(--shadow-offset-btn) 0 var(--shadow-color-btn);
+
+  background: var(--mustard);
+  color: var(--ink);
+  cursor: pointer;
+  transition:
+    transform 0.08s ease,
+    box-shadow 0.08s ease,
+    opacity 0.08s ease;
+}
+
+.confirmButton:hover:not(:disabled),
+.confirmButton:active:not(:disabled) {
+  transform: translate(2px, 2px);
+  box-shadow: 2px 2px 0 var(--shadow-color-btn);
+}
+
+.confirmButton:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}

@@ -11,6 +11,12 @@
 
   --border-width: 2.5px;
   --border-color: #0a0a09;
-  --shadow-offset: 6px;
-  --shadow-color: rgba(0, 0, 0, 0.45);
+
+  /* product-spec §7.3 — ombre franche des cartes */
+  --shadow-offset-card: 6px;
+  --shadow-color-card: rgba(0, 0, 0, 0.45);
+
+  /* product-spec §7.4 — ombre franche des boutons/chips (même bordure noire, décalage plus court) */
+  --shadow-offset-btn: 4px;
+  --shadow-color-btn: rgba(0, 0, 0, 0.4);
 }

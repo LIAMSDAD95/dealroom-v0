@@ -1,0 +1,31 @@
+/* Standard bouton unique — product-spec §7.4, appliqué ici à une chip sélectionnable */
+.chip {
+  font-family: var(--font-mono);
+  font-weight: 600;
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+
+  padding: 0.6rem 1.1rem;
+  border-radius: 10px;
+  border: var(--border-width) solid var(--border-color);
+  box-shadow: var(--shadow-offset-btn) var(--shadow-offset-btn) 0 var(--shadow-color-btn);
+
+  background: var(--stone);
+  color: var(--ink);
+  cursor: pointer;
+  transition:
+    transform 0.08s ease,
+    box-shadow 0.08s ease;
+}
+
+.chip:hover,
+.chip:active {
+  transform: translate(2px, 2px);
+  box-shadow: 2px 2px 0 var(--shadow-color-btn);
+}
+
+.chip[data-selected='true'] {
+  background: var(--mustard);
+  /* bordure toujours noire, jamais jaune (product-spec §7.4) */
+}
