@@ -1,0 +1,60 @@
+.panel {
+  background: var(--cream);
+  color: var(--ink);
+  border-radius: 16px;
+  border: var(--border-width) solid var(--border-color);
+  box-shadow: var(--shadow-offset-card) var(--shadow-offset-card) 0 var(--shadow-color-card);
+  padding: 1.25rem 1.4rem;
+}
+
+.top {
+  display: flex;
+  align-items: baseline;
+  gap: 0.9rem;
+  flex-wrap: wrap;
+  margin-bottom: 0.75rem;
+}
+
+.value {
+  font-family: var(--font-display);
+  font-weight: 800;
+  font-size: 1.9rem;
+}
+
+.sub {
+  font-size: 0.75rem;
+  color: #8a8574;
+  font-weight: 600;
+}
+
+.barTrack {
+  height: 10px;
+  background: #e8e1ce;
+  border: 1.5px solid var(--ink);
+  border-radius: 6px;
+  overflow: hidden;
+  margin-bottom: 0.9rem;
+}
+
+.barFill {
+  height: 100%;
+  background: var(--forest);
+}
+
+.committedChips {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.committedChip {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.35rem 0.75rem;
+  background: var(--forest);
+  color: var(--cream);
+  border-radius: 20px;
+  font-size: 0.7rem;
+  font-weight: 600;
+}

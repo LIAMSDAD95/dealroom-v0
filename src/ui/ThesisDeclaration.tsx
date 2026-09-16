@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import type { Sector, Stage, Thesis, Zone } from '../game-loop/thesis'
 import { MAX_SECTORS, sectorOptions, stageOptions, zoneOptions } from '../game-loop/thesis'
+import { AppHeader } from './AppHeader'
 import { Chip } from './Chip'
 import styles from './ThesisDeclaration.module.css'
 
@@ -36,10 +37,7 @@ export function ThesisDeclaration({ onConfirm }: ThesisDeclarationProps) {
 
   return (
     <main className={styles.screen}>
-      <header className={styles.header}>
-        <span className={styles.logoMark} aria-hidden="true" />
-        <span className={styles.logoText}>DEALROOM</span>
-      </header>
+      <AppHeader />
 
       <div className={styles.content}>
         <p className={styles.pixelLabel}>FONDS I · AVANT LE PREMIER TRIMESTRE</p>

@@ -1,8 +1,12 @@
-/* product-spec §7.2 — quadrillage discret + grain + scanlines, intégrés au body */
+/* product-spec §7.1/§7.2 — police par défaut, quadrillage discret + grain + scanlines */
+html,
 body {
   margin: 0;
   position: relative;
+  min-height: 100vh;
   background-color: var(--bg);
+  color: var(--cream);
+  font-family: var(--font-mono);
   background-image:
     linear-gradient(var(--grid-line) 1px, transparent 1px),
     linear-gradient(90deg, var(--grid-line) 1px, transparent 1px);

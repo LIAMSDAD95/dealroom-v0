@@ -3,28 +3,6 @@
   color: var(--cream);
 }
 
-.header {
-  display: flex;
-  align-items: center;
-  gap: 0.6rem;
-  padding: 1.5rem 2rem;
-}
-
-.logoMark {
-  width: 14px;
-  height: 14px;
-  background: var(--coral);
-  border-radius: 3px;
-}
-
-.logoText {
-  font-family: var(--font-display);
-  font-weight: 900;
-  font-size: 1.1rem;
-  text-transform: uppercase;
-  letter-spacing: 0.02em;
-}
-
 .content {
   max-width: 720px;
   margin: 3rem auto 5rem;

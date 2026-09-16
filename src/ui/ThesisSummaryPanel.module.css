@@ -1,0 +1,47 @@
+/* product-spec §7.5 — panneau contrasté (clair sur fond sombre) */
+.panel {
+  background: var(--cream);
+  color: var(--ink);
+  border-radius: 16px;
+  border: var(--border-width) solid var(--border-color);
+  box-shadow: var(--shadow-offset-card) var(--shadow-offset-card) 0 var(--shadow-color-card);
+  padding: 1.25rem 1.4rem;
+  display: flex;
+  gap: 2rem;
+  flex-wrap: wrap;
+}
+
+.group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.groupLabel {
+  font-size: 0.6rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: #8a8574;
+  font-weight: 700;
+}
+
+.chipRow {
+  display: flex;
+  gap: 0.45rem;
+  flex-wrap: wrap;
+}
+
+.chip {
+  padding: 0.35rem 0.8rem;
+  border-radius: 20px;
+  border: 1.5px solid var(--ink);
+  font-size: 0.75rem;
+  font-weight: 600;
+  background: transparent;
+  color: var(--ink);
+}
+
+.chip[data-selected='true'] {
+  background: var(--ink);
+  color: var(--cream);
+}

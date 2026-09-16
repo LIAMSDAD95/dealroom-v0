@@ -1,0 +1,47 @@
+.screen {
+  min-height: 100vh;
+  color: var(--cream);
+}
+
+.content {
+  max-width: 1160px;
+  margin: 0 auto;
+  padding: 2.5rem 1.5rem 5.5rem;
+}
+
+.eyebrow {
+  font-size: 0.625rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: #7a776e;
+  margin: 0 0 0.5rem;
+}
+
+.title {
+  font-family: var(--font-display);
+  font-weight: 900;
+  text-transform: uppercase;
+  font-size: 2.5rem;
+  line-height: 0.95;
+  margin: 0 0 1.75rem;
+}
+
+.sectionLabel {
+  font-family: var(--font-pixel);
+  font-size: 0.8rem;
+  color: #c9c6bc;
+  letter-spacing: 0.02em;
+  margin: 0 0 0.9rem;
+}
+
+.content > .sectionLabel {
+  margin-top: 2.25rem;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+  grid-auto-rows: 1fr;
+  align-items: stretch;
+  gap: 0.9rem;
+}

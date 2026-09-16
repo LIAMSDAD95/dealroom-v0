@@ -1,0 +1,120 @@
+/* product-spec §7.3 — carte à bordure noire épaisse, ombre franche, hauteur égale */
+.card {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+
+  padding: 1.25rem;
+  border-radius: 16px;
+  border: var(--border-width) solid var(--border-color);
+  box-shadow: var(--shadow-offset-card) var(--shadow-offset-card) 0 rgba(0, 0, 0, 0.55);
+}
+
+.card[data-tone='stone'] {
+  background: var(--stone);
+  color: var(--ink);
+}
+
+.card[data-tone='forest'] {
+  background: var(--forest);
+  color: var(--cream);
+}
+
+.card[data-tone='locked'] {
+  background: #3a3a38;
+  color: #8a8780;
+  box-shadow: none;
+  border-style: dashed;
+  opacity: 0.7;
+}
+
+.catalogIndex {
+  font-family: var(--font-pixel);
+  font-size: 0.625rem;
+}
+
+.name {
+  font-family: var(--font-display);
+  font-weight: 900;
+  text-transform: uppercase;
+  font-size: 1.3rem;
+  line-height: 0.95;
+  margin: 0;
+}
+
+.subtitle {
+  font-size: 0.625rem;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  font-weight: 600;
+  opacity: 0.75;
+  margin: 0;
+}
+
+.capital {
+  font-family: var(--font-display);
+  font-weight: 800;
+  font-size: 1rem;
+  margin: 0;
+}
+
+.constraints {
+  display: flex;
+  flex-direction: column;
+  gap: 0.45rem;
+}
+
+.constraint {
+  font-size: 0.65rem;
+  line-height: 1.4;
+  margin: 0;
+}
+
+.lockNote {
+  font-size: 0.65rem;
+  margin: 0;
+}
+
+/* Ancre le CTA en bas quelle que soit la hauteur du contenu au-dessus (product-spec §7.3) */
+.actionButton {
+  margin-top: auto;
+
+  font-family: var(--font-mono);
+  font-weight: 700;
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+
+  width: 100%;
+  padding: 0.75rem;
+  border-radius: 10px;
+  border: var(--border-width) solid var(--border-color);
+  box-shadow: var(--shadow-offset-btn) var(--shadow-offset-btn) 0 var(--shadow-color-btn);
+
+  background: var(--stone);
+  color: var(--ink);
+  cursor: pointer;
+  transition:
+    transform 0.08s ease,
+    box-shadow 0.08s ease;
+}
+
+.actionButton:hover:not(:disabled),
+.actionButton:active:not(:disabled) {
+  transform: translate(2px, 2px);
+  box-shadow: 2px 2px 0 var(--shadow-color-btn);
+}
+
+/* Accent mustard pour l'action mise en avant, bordure toujours noire (product-spec §7.4) */
+.actionButton.primary {
+  background: var(--mustard);
+  color: var(--ink);
+}
+
+.actionButton:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: var(--shadow-offset-btn) var(--shadow-offset-btn) 0 var(--shadow-color-btn);
+}
