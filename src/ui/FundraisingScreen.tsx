@@ -8,6 +8,7 @@ import { FundProgressPanel } from './FundProgressPanel'
 import { LpCard } from './LpCard'
 import styles from './FundraisingScreen.module.css'
 import { PitchScene } from './PitchScene'
+import { SectionLabel } from './SectionLabel'
 import { ThesisSummaryPanel } from './ThesisSummaryPanel'
 
 interface FundraisingScreenProps {
@@ -31,28 +32,34 @@ export function FundraisingScreen({ thesis, offers, onOfferCommitted }: Fundrais
         <p className={styles.eyebrow}>FONDATION DU FONDS</p>
         <h1 className={styles.title}>LEVÉE DE FONDS</h1>
 
-        <p className={styles.sectionLabel}>THÈSE D'INVESTISSEMENT</p>
-        <ThesisSummaryPanel thesis={thesis} />
+        <div className={styles.sectionSpacer}>
+          <SectionLabel icon="bar-chart">THÈSE D'INVESTISSEMENT</SectionLabel>
+          <ThesisSummaryPanel thesis={thesis} />
+        </div>
 
-        <p className={styles.sectionLabel}>PROGRESSION DU FONDS</p>
-        <FundProgressPanel offers={offers} target={FUND_I_TARGET} />
+        <div className={styles.sectionSpacer}>
+          <SectionLabel icon="zap">PROGRESSION DU FONDS</SectionLabel>
+          <FundProgressPanel offers={offers} target={FUND_I_TARGET} />
+        </div>
 
-        <p className={styles.sectionLabel}>LPS DISPONIBLES</p>
-        <div className={styles.grid}>
-          {offers.map((offer, i) => {
-            const archetype = lpArchetypes.find((a) => a.id === offer.archetypeId)
-            if (!archetype) return null
-            return (
-              <LpCard
-                key={offer.id}
-                index={i + 1}
-                archetype={archetype}
-                offer={offer}
-                tone="stone"
-                onPitch={() => setPitchingOfferId(offer.id)}
-              />
-            )
-          })}
+        <div className={styles.sectionSpacer}>
+          <SectionLabel icon="users">LPS DISPONIBLES</SectionLabel>
+          <div className={styles.grid}>
+            {offers.map((offer, i) => {
+              const archetype = lpArchetypes.find((a) => a.id === offer.archetypeId)
+              if (!archetype) return null
+              return (
+                <LpCard
+                  key={offer.id}
+                  index={i + 1}
+                  archetype={archetype}
+                  offer={offer}
+                  tone="stone"
+                  onPitch={() => setPitchingOfferId(offer.id)}
+                />
+              )
+            })}
+          </div>
         </div>
       </div>
 

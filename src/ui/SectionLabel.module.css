@@ -1,0 +1,19 @@
+.row {
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+  margin: 0 0 0.9rem;
+}
+
+.icon {
+  display: inline-flex;
+  color: #8a8574;
+}
+
+.label {
+  font-family: var(--font-pixel);
+  font-size: 0.8rem;
+  color: #c9c6bc;
+  letter-spacing: 0.02em;
+  margin: 0;
+}

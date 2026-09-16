@@ -1,5 +1,6 @@
 import type { LpArchetype } from '../signals-content/types'
 import type { LpOffer } from '../game-loop/lp-pool'
+import { Icon } from './Icon'
 import styles from './LpCard.module.css'
 
 interface LpCardProps {
@@ -25,7 +26,10 @@ export function LpCard({ index, archetype, offer, tone, onPitch }: LpCardProps) 
         <span className={styles.catalogIndex}>{String(index).padStart(2, '0')}</span>
         <h3 className={styles.name}>{offer.name}</h3>
         <p className={styles.subtitle}>{archetype.label}</p>
-        <p className={styles.lockNote}>{offer.lockedReason}</p>
+        <p className={styles.lockNote}>
+          <Icon name="lock" size={18} />
+          {offer.lockedReason}
+        </p>
         <button type="button" className={styles.actionButton} disabled>
           Indisponible
         </button>
@@ -45,6 +49,7 @@ export function LpCard({ index, archetype, offer, tone, onPitch }: LpCardProps) 
       <div className={styles.constraints}>
         {offer.constraints.map((constraint) => (
           <p key={constraint.label} className={styles.constraint}>
+            <Icon name={constraint.kind === 'bonus' ? 'network' : 'alert-circle'} size={17} />
             {constraint.label}
           </p>
         ))}

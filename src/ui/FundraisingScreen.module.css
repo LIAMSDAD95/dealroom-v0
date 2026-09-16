@@ -26,22 +26,20 @@
   margin: 0 0 1.75rem;
 }
 
-.sectionLabel {
-  font-family: var(--font-pixel);
-  font-size: 0.8rem;
-  color: #c9c6bc;
-  letter-spacing: 0.02em;
-  margin: 0 0 0.9rem;
+.sectionSpacer {
+  margin-top: 2.25rem;
 }
 
-.content > .sectionLabel {
-  margin-top: 2.25rem;
+.sectionSpacer:first-of-type {
+  margin-top: 0;
 }
 
 .grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
-  grid-auto-rows: 1fr;
+  /* auto (pas 1fr) : chaque ligne prend la hauteur de son contenu, évite que la grille étire
+     les lignes en fractions égales du conteneur — voir Claude/memory/blockers.md. */
+  grid-auto-rows: auto;
   align-items: stretch;
   gap: 0.9rem;
 }

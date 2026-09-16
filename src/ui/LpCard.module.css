@@ -1,6 +1,8 @@
-/* product-spec §7.3 — carte à bordure noire épaisse, ombre franche, hauteur égale */
+/* product-spec §7.3 — carte à bordure noire épaisse, ombre franche, hauteur égale.
+   Pas de height:100% ici : ça casse le calcul de grid-auto-rows:auto avec des cartes de
+   hauteurs de contenu différentes (voir Claude/memory/blockers.md, 2026-09-16). L'étirement
+   horizontal vient uniquement de align-items:stretch sur le parent .grid. */
 .card {
-  height: 100%;
   display: flex;
   flex-direction: column;
   gap: 0.75rem;
@@ -66,12 +68,23 @@
 }
 
 .constraint {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.4rem;
   font-size: 0.65rem;
   line-height: 1.4;
   margin: 0;
 }
 
+.constraint svg {
+  flex-shrink: 0;
+  margin-top: 0.1rem;
+}
+
 .lockNote {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
   font-size: 0.65rem;
   margin: 0;
 }
