@@ -7,10 +7,12 @@ export type Sector = 'saas-b2b' | 'fintech' | 'deeptech' | 'consumer' | 'marketp
 export type Stage = 'pre-seed' | 'seed' | 'series-a'
 export type Zone = 'france' | 'europe' | 'us'
 
+export const MIN_SECTORS = 2
 export const MAX_SECTORS = 3
 
 export interface Thesis {
-  /** 1 à MAX_SECTORS secteurs — pluriel pour diversifier le deal flow généré (voir decisions.md). */
+  /** MIN_SECTORS à MAX_SECTORS secteurs — le minimum garantit assez de variété pour le
+   * générateur de deal flow sur les 8 trimestres du run (voir decisions.md 2026-09-20). */
   sectors: Sector[]
   stage: Stage
   zone: Zone

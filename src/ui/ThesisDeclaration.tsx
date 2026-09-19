@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import type { Sector, Stage, Thesis, Zone } from '../game-loop/thesis'
-import { MAX_SECTORS, sectorOptions, stageOptions, zoneOptions } from '../game-loop/thesis'
+import { MAX_SECTORS, MIN_SECTORS, sectorOptions, stageOptions, zoneOptions } from '../game-loop/thesis'
 import { AppHeader } from './AppHeader'
 import { Chip } from './Chip'
 import styles from './ThesisDeclaration.module.css'
@@ -14,7 +14,7 @@ export function ThesisDeclaration({ onConfirm }: ThesisDeclarationProps) {
   const [stage, setStage] = useState<Stage | null>(null)
   const [zone, setZone] = useState<Zone | null>(null)
 
-  const isComplete = sectors.length > 0 && stage !== null && zone !== null
+  const isComplete = sectors.length >= MIN_SECTORS && stage !== null && zone !== null
 
   function toggleSector(id: Sector) {
     setSectors((current) => {
@@ -30,7 +30,7 @@ export function ThesisDeclaration({ onConfirm }: ThesisDeclarationProps) {
   }
 
   function handleConfirm() {
-    if (sectors.length > 0 && stage && zone) {
+    if (sectors.length >= MIN_SECTORS && stage && zone) {
       onConfirm({ sectors, stage, zone })
     }
   }
@@ -47,7 +47,9 @@ export function ThesisDeclaration({ onConfirm }: ThesisDeclarationProps) {
         </p>
 
         <section className={styles.group}>
-          <p className={styles.groupLabel}>SECTEUR — JUSQU'À {MAX_SECTORS}</p>
+          <p className={styles.groupLabel}>
+            SECTEUR — {MIN_SECTORS} À {MAX_SECTORS}
+          </p>
           <div className={styles.chips}>
             {sectorOptions.map((option) => (
               <Chip

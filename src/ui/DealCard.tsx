@@ -125,9 +125,10 @@ export function DealCard({
   }
 
   const isPassed = status === 'passed'
+  const isInvested = status === 'invested'
 
   return (
-    <article className={styles.card}>
+    <article className={styles.card} data-invested={isInvested || undefined}>
       <div className={styles.timerBar} data-urgency={urgency}>
         <div
           className={styles.timerFill}
@@ -153,27 +154,27 @@ export function DealCard({
           <button type="button" className={styles.passedButton} disabled>
             Opportunité écartée
           </button>
+        ) : isInvested ? (
+          <button type="button" className={styles.investedButton} disabled>
+            <Icon name="check" size={14} />
+            Investi ({formatCapital(ticket)})
+          </button>
         ) : (
           <>
             <button type="button" className={styles.passButton} onClick={onPass}>
               Passer
             </button>
-            {status === 'dug' ? (
-              <button
-                type="button"
-                className={styles.investButton}
-                disabled={ticketTooExpensive}
-                onClick={onInvest}
-              >
-                {ticketTooExpensive
-                  ? 'Capital insuffisant'
-                  : `Investir (${formatCapital(ticket)})`}
-              </button>
-            ) : (
-              <button type="button" className={styles.digButton} onClick={onDig}>
-                Creuser (-1)
-              </button>
-            )}
+            <button type="button" className={styles.digButton} onClick={onDig}>
+              Creuser (-1)
+            </button>
+            <button
+              type="button"
+              className={styles.investButton}
+              disabled={ticketTooExpensive}
+              onClick={onInvest}
+            >
+              {ticketTooExpensive ? 'Capital insuffisant' : `Investir (${formatCapital(ticket)})`}
+            </button>
           </>
         )}
       </div>
