@@ -63,3 +63,57 @@
 **Décision** : le CTA de fin de levée de fonds ("Lancer le premier trimestre") reste désactivé tant que `offers.some(o => o.status === 'committed')` est faux — au moins un LP doit être engagé pour avancer.
 **Raison** : le product-spec §3.1.4 dit littéralement que le joueur "peut rester sous la cible visée", ce qui autoriserait techniquement à avancer avec 0€ levé. Choix produit explicite de l'utilisateur d'imposer un minimum d'au moins 1 LP engagé, plus sécurisant pour la suite du run (démarrer un fonds à 0€ n'aurait pas de sens jouable).
 **Domaine concerné** : Game Loop (condition de transition) / UI (état du bouton). L'écran suivant est un placeholder minimal "Trimestre 1" en attendant la construction du deal flow.
+
+## [2026-09-19] 4 deals pour le Trimestre 1, contenu inspiré du screenshot deal flow
+
+**Décision** : `src/game-loop/deal-flow.data.ts` contient 4 deals (ReSurge, NRJ Logistics, Solvix AI, Vaeli), reprenant les noms/pitchs du screenshot deal flow envoyé en tout début de projet, chacun relié à un archétype fondateur Phase 0 différent. ReSurge est marqué `isDevelopedScene: true` (la seule scène développée du tour, §3.2 "~1 par tour").
+**Raison** : le product-spec ne fournit pas de deals concrets, seulement la mécanique. Le screenshot original donne des noms/pitchs réels déjà vus par l'utilisateur, plus cohérent que d'inventer des données from scratch.
+**Domaine concerné** : Game Loop (`src/game-loop/deal.ts`, `deal-flow.data.ts`). Contenu ajustable librement, pas structurant.
+
+## [2026-09-19] Carte deal flow rapide : bouton Investir après Creuser, ticket fixe
+
+**Décision** : sur une carte deal flow rapide, cliquer « Creuser » révèle les signaux ET fait apparaître un 3e bouton « Investir » (le bouton Passer reste disponible). Cliquer Investir engage un montant fixe (pas de curseur ajustable) — le ticket ajustable min/max (§3.4) reste réservé à la scène de dialogue développée.
+**Raison** : le product-spec §3.2 liste "passer / creuser / investir" comme les 3 actions d'une carte rapide sans préciser le flux exact ; ajouter le ticket ajustable ici alourdirait une interaction censée rester rapide sous chrono.
+**Domaine concerné** : Game Loop (résolution de decision) / UI (composant carte). Montants retenus dans `src/game-loop/deal-flow.ts` : 100k€ (pre-seed), 250k€ (seed), 600k€ (series-a) — arbitraires, à ajuster pour l'équilibrage.
+
+## [2026-09-19] DealTag porte une famille de signal, pas un statut révélé/verrouillé
+
+**Décision** : `DealTag` (`src/game-loop/deal.ts`) remplace son champ `status: 'revealed' | 'locked'` par `family: SignalFamily` ('structurel' | 'equipe' | 'trompeur', type déjà défini dans `signals-content/types.ts`). Le statut affiché (révélé ou verrouillé) devient dérivé côté UI : structurel toujours révélé d'office, équipe/trompeur révélés seulement une fois la carte creusée — jamais stocké en dur sur la donnée.
+**Raison** : précision de l'utilisateur sur la règle exacte de "Creuser" (product-spec §3.3) — les signaux structurels sont visibles d'office, seuls équipe/trompeur sont masqués derrière un cadenas puis révélés d'un coup en creusant, avec une couleur par famille (sarcelle/vert pour équipe, rose pour trompeur). L'ancien modèle (`status` figé par tag, sans notion de famille) ne permettait pas cette distinction.
+**Domaine concerné** : Game Loop (type `Deal`/`DealTag`) / UI (`DealCard` dérive le statut affiché à partir de `family` + `signalsRevealed`, applique la couleur par famille).
+
+## [2026-09-19] Couleurs de signal ajoutées aux tokens
+
+**Décision** : `--signal-equipe: #4a8a82` (sarcelle) et `--signal-trompeur: #c98a9e` (rose doux) ajoutés à `src/ui/tokens.css`. `--forest` (déjà existant) reste réservé aux scènes de dialogue (§7.10) pour éviter toute confusion sémantique avec les tags de signal.
+**Raison** : demande explicite de couleurs distinctes par famille de signal une fois révélé (sarcelle pour équipe, rose pour trompeur), le structurel restant neutre (fond `--cream`).
+**Domaine concerné** : UI / Visual System. Teintes proposées cohérentes avec la palette pixel-techwear existante, ajustables librement.
+
+## [2026-09-19] Capital déployé affiché à côté de la bande passante (Deal Flow)
+
+**Décision** : `DealFlowScreen` suit un state `deployedCapital` (somme des tickets fixes des deals investis) affiché dans la barre de ressources, à côté de la bande passante.
+**Raison** : demande explicite de visibilité sur le capital investi pendant le deal flow.
+**Domaine concerné** : UI (`DealFlowScreen.tsx`). Suite au retour utilisateur, affiché sous forme "déployé / levé" avec une jauge mustard — `totalRaised` calculé dans `App.tsx` à partir de `offers` et transmis en prop (relie le capital du deal flow au montant réellement levé en Phase 0.1).
+
+## [2026-09-19] Bouton "Opportunité écartée" après Passer
+
+**Décision** : cliquer « Passer » sur une carte deal flow remplace les boutons Passer/Creuser/Investir par un bouton unique désactivé « Opportunité écartée », visuellement grisé (opacité réduite, `cursor: not-allowed`).
+**Raison** : demande explicite — une carte passée ne doit plus permettre aucune action, avec un retour visuel clair.
+**Domaine concerné** : UI (`DealCard.tsx`/`.module.css`). Libellé du bouton choisi librement (l'utilisateur a laissé le nommage ouvert).
+
+## [2026-09-19] Investissement plafonné au capital réellement levé
+
+**Décision** : `DealFlowScreen` calcule `remainingCapital = totalRaised - deployedCapital` et l'utilise pour (1) refuser silencieusement `handleInvest` si le ticket dépasse le capital restant, (2) désactiver le bouton Investir sur une carte creusée dont le ticket dépasse le capital restant (libellé "Capital insuffisant"), (3) désactiver le bouton "Rejoindre le pitch" dès que `remainingCapital <= 0` (libellé "Capital épuisé").
+**Raison** : demande explicite — le joueur ne doit jamais pouvoir déployer plus que ce qu'il a levé auprès des LPs pendant la Phase 0.1, y compris via la scène de pitch fondateur (pas encore construite, mais l'accès est déjà bloqué en amont).
+**Domaine concerné** : Game Loop (calcul du capital restant) / UI (`DealCard.tsx` désactive Investir/pitch selon `remainingCapital`). Le blocage du pitch est conservateur : dès que le capital restant est à 0, même si un futur ticket de pitch pourrait être plus petit qu'un ticket de carte rapide — à affiner quand la scène de pitch fondateur existera et connaîtra son propre montant.
+
+## [2026-09-19] Header Deal Flow unifié : logo, badges LP, ressources
+
+**Décision** : `AppHeader` accepte deux props optionnelles `badges` et `resources` (en plus du logo toujours affiché). Sur `DealFlowScreen`, `badges` affiche un `LpBadge` par LP engagé (nom + initiales, juste après le logo) et `resources` regroupe capital déployé (avec jauge mustard) + bande passante, poussés à droite via `margin-left:auto`. Fond du header explicite (`--bg`) + bordure basse + `position:sticky`, cohérent avec `.topbar` de la maquette `vc-techwear-proposal_11.html`. `DealFlowScreen` reçoit désormais `offers: LpOffer[]` (au lieu de `totalRaised: number`) pour pouvoir lister les LPs engagés.
+**Raison** : demande explicite — logo/badges LP à gauche, ressources à droite, fond sombre visible, cohérent avec le screenshot deal flow original envoyé en tout début de projet.
+**Domaine concerné** : UI (`AppHeader.tsx`, nouveau composant `LpBadge.tsx`, `DealFlowScreen.tsx`).
+
+## [2026-09-19] Montant recherché visible dès le début sur chaque carte deal flow
+
+**Décision** : le montant recherché par chaque startup (= `fixedTicketForStage(deal.stage)`) s'affiche directement sur la carte, sans attendre de Creuser — "Recherche {montant}" sur les cartes rapides, colonne "MONTANT" (remplace "TENTATIVE") sur la carte pitch.
+**Raison** : demande explicite — le montant cible d'une levée de fonds est une information publique par nature, cohérent avec le fait qu'elle n'est pas un signal équipe/trompeur (§3.3).
+**Domaine concerné** : UI (`DealCard.tsx`/`.module.css`).

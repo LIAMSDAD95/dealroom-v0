@@ -1,0 +1,283 @@
+/* product-spec §7.3 — carte grise standard, hauteur égale (pas de height:100%, voir LpCard.module.css) */
+.card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+
+  padding: 1.25rem;
+  border-radius: 16px;
+  border: var(--border-width) solid var(--border-color);
+  box-shadow: var(--shadow-offset-card) var(--shadow-offset-card) 0 var(--shadow-color-card);
+  background: var(--stone);
+  color: var(--ink);
+  overflow: hidden;
+}
+
+/* product-spec §7.7 — barre de chrono : 8px, noire par défaut, orange puis rouge */
+.timerBar {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 8px;
+  background: var(--border-color);
+}
+
+.timerFill {
+  height: 100%;
+  background: var(--border-color);
+  transition: width 1s linear;
+}
+
+.timerBar[data-urgency='warning'] .timerFill {
+  background: var(--mustard);
+}
+
+.timerBar[data-urgency='danger'] .timerFill {
+  background: var(--danger);
+  box-shadow: 0 0 8px var(--danger);
+}
+
+.top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 0.4rem;
+}
+
+.catalogIndex {
+  font-family: var(--font-pixel);
+  font-size: 0.625rem;
+  opacity: 0.6;
+}
+
+.timerLabel {
+  font-family: var(--font-display);
+  font-weight: 800;
+  font-size: 1.2rem;
+}
+
+.timerLabel[data-urgency='warning'] {
+  color: #b8730f;
+}
+
+.timerLabel[data-urgency='danger'] {
+  color: var(--danger);
+}
+
+.name {
+  font-family: var(--font-display);
+  font-weight: 900;
+  text-transform: uppercase;
+  font-size: 1.4rem;
+  line-height: 0.95;
+  margin: 0;
+}
+
+.subtitle {
+  font-size: 0.7rem;
+  letter-spacing: 0.02em;
+  opacity: 0.75;
+  margin: 0;
+}
+
+.askAmount {
+  font-family: var(--font-display);
+  font-weight: 800;
+  font-size: 0.9rem;
+  margin: 0;
+}
+
+.tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+}
+
+.tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+
+  font-family: var(--font-mono);
+  font-size: 0.65rem;
+  text-transform: uppercase;
+  padding: 0.3rem 0.6rem;
+  border-radius: 8px;
+  border: 1.5px solid var(--border-color);
+}
+
+/* Non révélé (locked) : pas de data-family posé par DealCard.tsx */
+.tag:not([data-family]) {
+  background: transparent;
+  border-style: dashed;
+  opacity: 0.6;
+}
+
+/* product-spec §3.3 — structurel neutre, équipe/trompeur colorés une fois révélés */
+.tag[data-family='structurel'] {
+  background: var(--cream);
+}
+
+.tag[data-family='equipe'] {
+  background: var(--signal-equipe);
+  color: var(--cream);
+  border-color: var(--border-color);
+}
+
+.tag[data-family='trompeur'] {
+  background: var(--signal-trompeur);
+  color: var(--ink);
+  border-color: var(--border-color);
+}
+
+.actions {
+  margin-top: auto;
+  display: flex;
+  gap: 0.6rem;
+}
+
+.passButton,
+.digButton,
+.investButton {
+  flex: 1;
+
+  font-family: var(--font-mono);
+  font-weight: 700;
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+
+  padding: 0.75rem;
+  border-radius: 10px;
+  border: var(--border-width) solid var(--border-color);
+  box-shadow: var(--shadow-offset-btn) var(--shadow-offset-btn) 0 var(--shadow-color-btn);
+  cursor: pointer;
+  transition:
+    transform 0.08s ease,
+    box-shadow 0.08s ease;
+}
+
+.passButton:hover,
+.digButton:hover,
+.investButton:hover,
+.passButton:active,
+.digButton:active,
+.investButton:active {
+  transform: translate(2px, 2px);
+  box-shadow: 2px 2px 0 var(--shadow-color-btn);
+}
+
+.passButton,
+.digButton {
+  background: var(--stone);
+  color: var(--ink);
+}
+
+.investButton {
+  background: var(--mustard);
+  color: var(--ink);
+}
+
+.passButton:disabled,
+.digButton:disabled,
+.investButton:disabled,
+.pitchButton:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: var(--shadow-offset-btn) var(--shadow-offset-btn) 0 var(--shadow-color-btn);
+}
+
+.passedButton {
+  flex: 1;
+
+  font-family: var(--font-mono);
+  font-weight: 700;
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+
+  padding: 0.75rem;
+  border-radius: 10px;
+  border: var(--border-width) solid var(--border-color);
+  background: transparent;
+  color: var(--ink);
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+/* Carte scène développée (product-spec §7.3 : ruban diagonal, pas de couleur différente) */
+.card[data-pitch='true'] {
+  padding-top: 1.5rem;
+}
+
+.pitchRibbon {
+  position: absolute;
+  top: 14px;
+  right: -32px;
+  width: 130px;
+  transform: rotate(45deg);
+  background: var(--border-color);
+  color: var(--cream);
+  font-family: var(--font-pixel);
+  font-size: 0.6rem;
+  text-align: center;
+  padding: 0.3rem 0;
+}
+
+.specs {
+  display: flex;
+  gap: 1.25rem;
+  border-top: 1.5px solid var(--border-color);
+  border-bottom: 1.5px solid var(--border-color);
+  padding: 0.75rem 0;
+}
+
+.spec {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+}
+
+.specLabel {
+  font-family: var(--font-pixel);
+  font-size: 0.55rem;
+  opacity: 0.6;
+}
+
+.specValue {
+  font-family: var(--font-display);
+  font-weight: 800;
+  font-size: 0.9rem;
+}
+
+.pitchButton {
+  margin-top: auto;
+
+  font-family: var(--font-mono);
+  font-weight: 700;
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+
+  width: 100%;
+  padding: 0.9rem;
+  border-radius: 10px;
+  border: var(--border-width) solid var(--border-color);
+  box-shadow: var(--shadow-offset-btn) var(--shadow-offset-btn) 0 var(--shadow-color-btn);
+
+  background: var(--mustard);
+  color: var(--ink);
+  cursor: pointer;
+  transition:
+    transform 0.08s ease,
+    box-shadow 0.08s ease;
+}
+
+.pitchButton:hover,
+.pitchButton:active {
+  transform: translate(2px, 2px);
+  box-shadow: 2px 2px 0 var(--shadow-color-btn);
+}

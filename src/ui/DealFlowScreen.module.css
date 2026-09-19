@@ -1,0 +1,100 @@
+.screen {
+  min-height: 100vh;
+  color: var(--cream);
+}
+
+.content {
+  max-width: 1160px;
+  margin: 0 auto;
+  padding: 1rem 1.5rem 5.5rem;
+}
+
+.lpBadges {
+  display: flex;
+  gap: 0.6rem;
+  margin-left: 1.5rem;
+}
+
+.resource {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+}
+
+.resourceLabel {
+  font-family: var(--font-pixel);
+  font-size: 0.5rem;
+  color: #8a8574;
+}
+
+.capitalValue {
+  font-family: var(--font-display);
+  font-weight: 800;
+  font-size: 1rem;
+}
+
+.capitalTrack {
+  width: 140px;
+  height: 6px;
+  border-radius: 4px;
+  background: #2a2a28;
+  overflow: hidden;
+}
+
+.capitalFill {
+  height: 100%;
+  background: var(--mustard);
+  transition: width 0.2s ease;
+}
+
+.bandwidthDots {
+  display: flex;
+  gap: 0.4rem;
+}
+
+.dot {
+  width: 14px;
+  height: 14px;
+  border-radius: 3px;
+  border: 1.5px solid var(--border-color);
+  background: transparent;
+}
+
+.dot[data-filled='true'] {
+  background: var(--mustard);
+}
+
+.eyebrow {
+  font-size: 0.625rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: #7a776e;
+  margin: 0 0 0.5rem;
+}
+
+.title {
+  font-family: var(--font-display);
+  font-weight: 900;
+  text-transform: uppercase;
+  font-size: 2.5rem;
+  line-height: 0.95;
+  margin: 0 0 0.5rem;
+}
+
+.subtitle {
+  font-family: var(--font-mono);
+  color: var(--stone);
+  margin: 0;
+}
+
+.sectionSpacer {
+  margin-top: 2.25rem;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  grid-auto-rows: auto;
+  align-items: stretch;
+  gap: 0.9rem;
+}

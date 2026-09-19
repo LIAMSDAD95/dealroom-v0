@@ -3,16 +3,17 @@ import '../ui/tokens.css'
 import '../ui/fonts.css'
 import '../ui/global.css'
 import { fundIOffers } from '../game-loop/lp-pool.data'
+import { quarterOneDeals } from '../game-loop/deal-flow.data'
 import type { LpOffer } from '../game-loop/lp-pool'
 import type { Thesis } from '../game-loop/thesis'
 import { ThesisDeclaration } from '../ui/ThesisDeclaration'
 import { FundraisingScreen } from '../ui/FundraisingScreen'
-import { QuarterOneScreen } from '../ui/QuarterOneScreen'
+import { DealFlowScreen } from '../ui/DealFlowScreen'
 
 type Screen =
   | { name: 'thesis' }
   | { name: 'fundraising'; thesis: Thesis }
-  | { name: 'quarter-one'; thesis: Thesis }
+  | { name: 'deal-flow'; thesis: Thesis }
 
 function App() {
   const [screen, setScreen] = useState<Screen>({ name: 'thesis' })
@@ -38,12 +39,12 @@ function App() {
             ),
           )
         }}
-        onProceedToQuarterOne={() => setScreen({ name: 'quarter-one', thesis: screen.thesis })}
+        onProceedToQuarterOne={() => setScreen({ name: 'deal-flow', thesis: screen.thesis })}
       />
     )
   }
 
-  return <QuarterOneScreen thesis={screen.thesis} offers={offers} />
+  return <DealFlowScreen deals={quarterOneDeals} offers={offers} />
 }
 
 export default App

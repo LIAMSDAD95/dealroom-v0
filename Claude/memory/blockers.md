@@ -47,3 +47,10 @@
 **Domaine concerné** : UI / Visual System (`src/ui/LpCard.module.css`)
 **Symptôme** : sur la grille de cartes LP (4 disponibles + 2 verrouillées, en 2 lignes), la 2e ligne (cartes verrouillées) remonte et recouvre le bas de la 1ère ligne — le bouton « Pitcher » des cartes 1 et 2 est partiellement caché sous les cartes 05/06.
 **Contexte** : `.grid` avait `grid-auto-rows: 1fr`. Un premier correctif (passage à `grid-auto-rows: auto`) n'a PAS résolu le bug malgré une hypothèse initialement plausible — la vraie cause était ailleurs (voir learnings.md).
+
+## [2026-09-19] Creuser une carte deal flow ne révèle aucune information
+
+**Statut** : résolu — voir `src/ui/DealFlowScreen.tsx` et `DealCard.tsx`.
+**Domaine concerné** : UI / Visual System
+**Symptôme** : cliquer « Creuser » sur une carte deal flow fait bien apparaître le bouton « Investir » et décrémente la bande passante, mais les tags marqués `locked` (signaux équipe/trompeurs) restent affichés comme non révélés — alors que "creuser" est censé révéler ces signaux (product-spec §3.2).
+**Contexte** : `handleDig` dans `DealFlowScreen` ne mettait à jour que `statuses` (état de la carte), jamais un état de révélation des tags — `DealCard` affichait directement `deal.tags` (donnée statique) sans tenir compte du fait que le deal avait été creusé.

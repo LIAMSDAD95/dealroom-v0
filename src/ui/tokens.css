@@ -9,6 +9,10 @@
   --forest: #465e49;
   --danger: #c0392b;
 
+  /* product-spec §3.3 — couleurs des signaux une fois révélés (structurel reste en --stone/--ink) */
+  --signal-equipe: #4a8a82;
+  --signal-trompeur: #c98a9e;
+
   --border-width: 2.5px;
   --border-color: #0a0a09;
 
