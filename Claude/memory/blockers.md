@@ -48,6 +48,20 @@
 **Symptôme** : sur la grille de cartes LP (4 disponibles + 2 verrouillées, en 2 lignes), la 2e ligne (cartes verrouillées) remonte et recouvre le bas de la 1ère ligne — le bouton « Pitcher » des cartes 1 et 2 est partiellement caché sous les cartes 05/06.
 **Contexte** : `.grid` avait `grid-auto-rows: 1fr`. Un premier correctif (passage à `grid-auto-rows: auto`) n'a PAS résolu le bug malgré une hypothèse initialement plausible — la vraie cause était ailleurs (voir learnings.md).
 
+## [2026-09-19] Noms de startup dupliqués dans le deal flow généré
+
+**Statut** : résolu (voir learnings.md)
+**Domaine concerné** : Game Loop (`src/game-loop/deal-generator.ts`)
+**Symptôme** : avec une thèse à un seul secteur (ex. Fintech), le deal flow généré affiche 2 cartes "LEDGERBASE" et 2 cartes "NORTHCOIN" identiques côte à côte.
+**Contexte** : le générateur piochait chaque profil de startup indépendamment (`pickRandom` par carte, sans exclusion) — avec seulement 3 profils disponibles pour 4 tirages, une collision était statistiquement quasi certaine (paradoxe des anniversaires).
+
+## [2026-09-19] Montants identiques et trop élevés sur les 4 cartes deal flow
+
+**Statut** : résolu — voir `src/game-loop/deal.ts` (`askAmount`), `deal-generator.ts` (`generateAskAmount`).
+**Domaine concerné** : Game Loop
+**Symptôme** : les 4 cartes du deal flow affichaient exactement le même montant recherché, souvent supérieur au capital réellement levé — rendant l'investissement impossible sur toutes les cartes du tour.
+**Contexte** : le montant venait de `fixedTicketForStage(deal.stage)`, qui ne dépend que du stade — or la thèse impose un seul stade pour tout le run (§3.1.1), donc les 4 deals générés partagent toujours le même stade. Les montants de base (100k/250k/600k) n'avaient pas non plus été vérifiés contre les fourchettes réelles des LPs Phase 0 (le plus petit LP, Yann Fontaine, ne propose que 100k-250k€).
+
 ## [2026-09-19] Creuser une carte deal flow ne révèle aucune information
 
 **Statut** : résolu — voir `src/ui/DealFlowScreen.tsx` et `DealCard.tsx`.

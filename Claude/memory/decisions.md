@@ -117,3 +117,15 @@
 **Décision** : le montant recherché par chaque startup (= `fixedTicketForStage(deal.stage)`) s'affiche directement sur la carte, sans attendre de Creuser — "Recherche {montant}" sur les cartes rapides, colonne "MONTANT" (remplace "TENTATIVE") sur la carte pitch.
 **Raison** : demande explicite — le montant cible d'une levée de fonds est une information publique par nature, cohérent avec le fait qu'elle n'est pas un signal équipe/trompeur (§3.3).
 **Domaine concerné** : UI (`DealCard.tsx`/`.module.css`).
+
+## [2026-09-19] ReSurge/Marcus Idjeri réassigné à l'archétype "Bricoleur obsessionnel"
+
+**Décision** : le deal ReSurge, précédemment assigné à `rescape` ("Le Rescapé"), est réassigné à `bricoleur-obsessionnel` dans les banques de contenu Signals & Content.
+**Raison** : `rescape` n'est pas dans les 5 archétypes actifs en Phase 0 (`phase0: true` dans `founders.ts`) — incohérence introduite lors de l'écriture initiale de `deal-flow.data.ts`. "Bricoleur obsessionnel" ("présentation maladroite, précision chirurgicale une fois creusé") correspond mieux au ton factuel/sans posture déjà écrit dans le pitch de Marcus Idjeri (scène de pitch LP Yann Fontaine).
+**Domaine concerné** : Signals & Content. Corrige la source de vérité pour le générateur de deal flow (ADR-002).
+
+## [2026-09-19] Banques de contenu pour le générateur de deal flow (ADR-002)
+
+**Décision** : trois nouvelles banques dans `src/signals-content/` : `company-names.ts` (profils startup — nom/pitch/ticker — indexés par secteur, 3-4 par secteur), `founder-names.ts` (noms de fondateurs indexés par zone, purement cosmétique), `signal-bank.ts` (tags structurel génériques + 4 tags équipe/trompeur par archétype Phase 0, pour varier les combinaisons d'un tour à l'autre).
+**Raison** : contenu nécessaire pour que le générateur (ADR-002) puisse composer des deals variés respectant la thèse (secteur+zone+stade) sans tout écrire à la main par trimestre.
+**Domaine concerné** : Signals & Content. Volume de contenu délibérément modeste pour la Phase 0 (assez pour plusieurs trimestres sans répétition immédiate) — à étoffer si le run de 8 trimestres montre trop de répétitions en playtest.

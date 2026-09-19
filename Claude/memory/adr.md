@@ -31,3 +31,21 @@
 - Chaque composant partagé (carte, bouton, panneau, chrono) vit dans `src/ui/` avec son propre `.module.css` qui consomme les variables de `tokens.css`.
 
 **Révision (2026-09-11)** : la décision initiale proposait Tailwind CSS. Remis en question par l'utilisateur : le système visuel de DEALROOM n'est pas fait de nombreux ajustements de spacing/layout variés (le terrain naturel de Tailwind) mais d'un petit nombre de patterns très spécifiques et récurrents à reproduire à l'identique (ombre portée franche non-floue à décalage fixe, bordure noire à 2.5px, triptyque de grille à hauteur égale, animation de flash en `text-stroke` à 8 pulsations, texture de grain SVG globale). Ces valeurs, exprimées en utilitaires Tailwind, nécessiteraient des valeurs arbitraires répétées à chaque usage — exactement la duplication que le design system cherche à éviter. Des variables CSS + classes composants centralisent ces patterns une seule fois. **À retenir** : pour un design system très normé avec peu de composants mais des règles pixel-perfect strictes, préférer CSS natif/Modules à un framework utilitaire.
+
+## ADR-002 — Génération procédurale du deal flow à partir de banques de contenu
+
+**Statut** : accepté (2026-09-19)
+
+**Contexte** : `deal-flow.data.ts` ne contenait que 4 deals écrits en dur pour le Trimestre 1 — aucun mécanisme pour produire le deal flow des 7 trimestres suivants. Le product-spec §3.2 ne précise pas comment les deals sont produits à chaque tour, seulement leur nombre (3-6) et leur structure.
+
+**Décision** :
+- Remplacer les deals figés par des **banques de contenu réutilisables** : une banque de noms de startups/fondateurs par secteur+zone, et une banque de tags de signaux (structurel/équipe/trompeur) **par archétype fondateur** — chaque archétype garde sa cohérence narrative propre (product-spec §4), le générateur pioche dedans plutôt que d'inventer.
+- Un **générateur** (Game Loop) compose 4 deals à chaque trimestre, en filtrant strictement sur la thèse du joueur (secteur(s) ET zone ET stade) — jamais de deal hors thèse en Phase 0 ; la mécanique de "déviation" (deal hors thèse, tension avec la confiance LP) reste une extension V2 possible.
+- Exactement **1 des 4 deals** est marqué scène développée (`isDevelopedScene: true`) à chaque tour — pas de variabilité 0/2 pour l'instant.
+- Nombre de deals par tour fixé à **4** (dans la fourchette 3-6 du spec) plutôt que variable, pour rester cohérent avec la bande passante de départ (4 points).
+
+**Conséquences** :
+- `src/signals-content/` gagne des banques de contenu (noms, pitchs, tags par archétype × famille de signal) — domaine Signals & Content, pur contenu sans logique de ressources.
+- `src/game-loop/` gagne une fonction de génération (ex. `generateQuarterDeals(thesis, quarterNumber)`) qui compose ces banques selon la thèse — domaine Game Loop, dépend de l'état du run.
+- `deal-flow.data.ts` (les 4 deals figés du Trimestre 1) devient soit un cas particulier du générateur, soit est remplacé entièrement — à trancher à l'implémentation.
+- Le filtrage strict sur la thèse suppose une banque de contenu suffisamment fournie par combinaison secteur×zone pour ne jamais tomber à court de deals — à surveiller à mesure que le contenu grandit.

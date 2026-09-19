@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
 import type { Deal, DealTag } from '../game-loop/deal'
 import type { DealCardStatus } from '../game-loop/deal-flow'
-import { DEAL_CARD_TIMER_SECONDS, fixedTicketForStage } from '../game-loop/deal-flow'
+import { DEAL_CARD_TIMER_SECONDS } from '../game-loop/deal-flow'
 import { Icon } from './Icon'
 import styles from './DealCard.module.css'
 
@@ -67,7 +67,7 @@ export function DealCard({
   const onPassRef = useRef(onPass)
   onPassRef.current = onPass
 
-  const ticket = fixedTicketForStage(deal.stage)
+  const ticket = deal.askAmount
   const capitalExhausted = remainingCapital <= 0
   const ticketTooExpensive = ticket > remainingCapital
 

@@ -1,7 +1,6 @@
 import { useState } from 'react'
 import type { Deal } from '../game-loop/deal'
 import type { DealCardStatus } from '../game-loop/deal-flow'
-import { fixedTicketForStage } from '../game-loop/deal-flow'
 import type { LpOffer } from '../game-loop/lp-pool'
 import { STARTING_BANDWIDTH } from '../game-loop/resources'
 import { AppHeader } from './AppHeader'
@@ -51,10 +50,9 @@ export function DealFlowScreen({ deals, offers }: DealFlowScreenProps) {
   function handleInvest(dealId: string) {
     const deal = deals.find((d) => d.id === dealId)
     if (!deal) return
-    const ticket = fixedTicketForStage(deal.stage)
     // Ne jamais dépasser le capital réellement levé auprès des LPs (retour utilisateur 2026-09-19).
-    if (ticket > remainingCapital) return
-    setDeployedCapital((c) => c + ticket)
+    if (deal.askAmount > remainingCapital) return
+    setDeployedCapital((c) => c + deal.askAmount)
     setStatuses((s) => ({ ...s, [dealId]: 'invested' }))
   }
 

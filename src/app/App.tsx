@@ -3,7 +3,8 @@ import '../ui/tokens.css'
 import '../ui/fonts.css'
 import '../ui/global.css'
 import { fundIOffers } from '../game-loop/lp-pool.data'
-import { quarterOneDeals } from '../game-loop/deal-flow.data'
+import { generateQuarterDeals } from '../game-loop/deal-generator'
+import type { Deal } from '../game-loop/deal'
 import type { LpOffer } from '../game-loop/lp-pool'
 import type { Thesis } from '../game-loop/thesis'
 import { ThesisDeclaration } from '../ui/ThesisDeclaration'
@@ -13,7 +14,7 @@ import { DealFlowScreen } from '../ui/DealFlowScreen'
 type Screen =
   | { name: 'thesis' }
   | { name: 'fundraising'; thesis: Thesis }
-  | { name: 'deal-flow'; thesis: Thesis }
+  | { name: 'deal-flow'; thesis: Thesis; deals: Deal[] }
 
 function App() {
   const [screen, setScreen] = useState<Screen>({ name: 'thesis' })
@@ -39,12 +40,16 @@ function App() {
             ),
           )
         }}
-        onProceedToQuarterOne={() => setScreen({ name: 'deal-flow', thesis: screen.thesis })}
+        onProceedToQuarterOne={() => {
+          // Deals générés une seule fois à l'entrée du trimestre (ADR-002), pas à chaque render.
+          const deals = generateQuarterDeals(screen.thesis, 1)
+          setScreen({ name: 'deal-flow', thesis: screen.thesis, deals })
+        }}
       />
     )
   }
 
-  return <DealFlowScreen deals={quarterOneDeals} offers={offers} />
+  return <DealFlowScreen deals={screen.deals} offers={offers} />
 }
 
 export default App

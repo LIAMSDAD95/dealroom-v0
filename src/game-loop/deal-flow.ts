@@ -7,14 +7,17 @@ export type DealCardStatus = 'pending' | 'dug' | 'passed' | 'invested'
 // product-spec §6 : chrono 40s de base pour les cartes rapides.
 export const DEAL_CARD_TIMER_SECONDS = 40
 
-// Ticket fixe par stade — voir Claude/memory/decisions.md (2026-09-19) : pas de curseur
+// Montant de base par stade — voir Claude/memory/decisions.md (2026-09-19) : pas de curseur
 // ajustable sur une carte rapide, contrairement à la scène de dialogue développée (§3.4).
-const FIXED_TICKET_BY_STAGE: Record<Stage, number> = {
-  'pre-seed': 100_000,
-  seed: 250_000,
-  'series-a': 600_000,
+// Chaque deal généré varie ce montant de base (voir deal-generator.ts) pour éviter que
+// toutes les cartes d'un même stade affichent exactement le même chiffre (voir
+// Claude/memory/blockers.md, 2026-09-19 "montants identiques et trop élevés").
+const BASE_TICKET_BY_STAGE: Record<Stage, number> = {
+  'pre-seed': 80_000,
+  seed: 180_000,
+  'series-a': 400_000,
 }
 
-export function fixedTicketForStage(stage: Stage): number {
-  return FIXED_TICKET_BY_STAGE[stage]
+export function baseTicketForStage(stage: Stage): number {
+  return BASE_TICKET_BY_STAGE[stage]
 }

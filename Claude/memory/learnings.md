@@ -47,6 +47,12 @@
 **Solution** : remplacer par `grid-auto-rows: auto` dans `.grid` (`src/ui/FundraisingScreen.module.css`) — chaque ligne de la grille prend sa hauteur naturelle, `gap` sépare correctement les lignes.
 **À retenir pour la suite** : `grid-auto-rows: 1fr` est utile seulement quand on veut délibérément forcer toutes les lignes générées à occuper une part égale de la hauteur totale du conteneur (rare, et seulement si le conteneur a une hauteur contrainte). Pour une grille de cartes de contenu variable, `auto` est le choix par défaut sûr — le triptyque "hauteur égale" du product-spec (§7.3 : `align-items:stretch` + `.card{height:100%}` + `margin-top:auto` sur le CTA) suffit déjà à uniformiser la hauteur *à l'intérieur* d'une même ligne, sans qu'il soit nécessaire de forcer les lignes elles-mêmes en fractions égales du conteneur.
 
+## [2026-09-19] Piocher sans répétition plutôt que sans exclusion (lié à blockers.md#noms-dupliques)
+
+**Cause racine** : `pickRandom` était appelé indépendamment pour chaque carte du deal flow, sans retirer le profil déjà choisi de la banque disponible — statistiquement, avec 4 tirages indépendants parmi seulement 3 profils (secteur unique dans la thèse), une collision est presque garantie.
+**Solution** : deux changements complémentaires. (1) `pickManyNoRepeat` remplace les tirages indépendants — mélange la banque une fois, distribue sans répétition tant qu'il y a assez d'éléments, ne recommence à répéter qu'en dernier recours si la banque est plus petite que le nombre demandé. (2) Chaque banque `company-names.ts` par secteur est passée à 5-6 profils (au lieu de 3-4), pour que même une thèse à un seul secteur puisse générer 4 deals sans jamais recourir à la répétition.
+**À retenir pour la suite** : pour toute génération procédurale de N éléments visibles simultanément (cartes, options, tirages), ne jamais piocher chaque élément indépendamment dans la même banque — utiliser un tirage sans remise, et dimensionner la banque source à au moins N éléments pour le cas d'usage le plus contraint (ici : thèse à un seul secteur).
+
 ## [2026-09-19] Séparer l'état "révélé" de la donnée statique du deal (lié à blockers.md#creuser-ne-revele-rien)
 
 **Cause racine** : `DealCard` affichait `deal.tags` directement — une donnée statique venant de `deal-flow.data.ts`, jamais mise à jour par les actions du joueur. Cliquer « Creuser » changeait bien le `status` de la carte (`pending` → `dug`) dans `DealFlowScreen`, mais rien ne reliait cette action à l'affichage des tags eux-mêmes.

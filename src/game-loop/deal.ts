@@ -22,6 +22,8 @@ export interface Deal {
   sector: Sector
   stage: Stage
   ticker: string
+  /** Montant recherché par la startup — varie par carte autour de la base du stade, voir deal-generator.ts. */
+  askAmount: number
   /** N-ième tentative de levée pour cette startup — affiché sur la carte (product-spec, screenshot). */
   attemptNumber: number
   tags: DealTag[]
