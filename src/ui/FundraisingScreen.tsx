@@ -15,14 +15,23 @@ interface FundraisingScreenProps {
   thesis: Thesis
   offers: LpOffer[]
   onOfferCommitted: (offerId: string, amount: number) => void
+  onProceedToQuarterOne: () => void
 }
 
-export function FundraisingScreen({ thesis, offers, onOfferCommitted }: FundraisingScreenProps) {
+export function FundraisingScreen({
+  thesis,
+  offers,
+  onOfferCommitted,
+  onProceedToQuarterOne,
+}: FundraisingScreenProps) {
   const [pitchingOfferId, setPitchingOfferId] = useState<string | null>(null)
   const pitchingOffer = offers.find((o) => o.id === pitchingOfferId) ?? null
   const pitchingArchetype = pitchingOffer
     ? lpArchetypes.find((a) => a.id === pitchingOffer.archetypeId)
     : null
+  // product-spec §3.1.4 autorise techniquement d'avancer sous la cible, mais décision produit
+  // (Claude/memory/decisions.md 2026-09-19) : au moins 1 LP engagé requis pour continuer.
+  const hasCommittedOffer = offers.some((o) => o.status === 'committed')
 
   return (
     <main className={styles.screen}>
@@ -61,6 +70,15 @@ export function FundraisingScreen({ thesis, offers, onOfferCommitted }: Fundrais
             })}
           </div>
         </div>
+
+        <button
+          type="button"
+          className={styles.proceedButton}
+          disabled={!hasCommittedOffer}
+          onClick={onProceedToQuarterOne}
+        >
+          Lancer le premier trimestre →
+        </button>
       </div>
 
       {pitchingOffer && pitchingArchetype && (

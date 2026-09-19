@@ -43,3 +43,37 @@
   align-items: stretch;
   gap: 0.9rem;
 }
+
+.proceedButton {
+  font-family: var(--font-mono);
+  font-weight: 700;
+  font-size: 0.9rem;
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+
+  width: 100%;
+  padding: 1rem;
+  margin-top: 2.25rem;
+  border-radius: 10px;
+  border: var(--border-width) solid var(--border-color);
+  box-shadow: var(--shadow-offset-btn) var(--shadow-offset-btn) 0 var(--shadow-color-btn);
+
+  background: var(--mustard);
+  color: var(--ink);
+  cursor: pointer;
+  transition:
+    transform 0.08s ease,
+    box-shadow 0.08s ease,
+    opacity 0.08s ease;
+}
+
+.proceedButton:hover:not(:disabled),
+.proceedButton:active:not(:disabled) {
+  transform: translate(2px, 2px);
+  box-shadow: 2px 2px 0 var(--shadow-color-btn);
+}
+
+.proceedButton:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}

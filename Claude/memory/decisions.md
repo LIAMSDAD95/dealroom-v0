@@ -57,3 +57,9 @@
 **Décision** : ajout de 2 questions chacune pour `fund-i-family-office-r` et `fund-i-fonds-pension-b` dans `pitch-questions.ts` — les 4 LPs disponibles du Fonds I ont maintenant une scène de pitch jouable avec conversation (plus de fallback "direct au résultat").
 **Raison** : la maquette ne scriptait que Northbridge et Yann Fontaine ; demande explicite de compléter les 2 LPs restants plutôt que de laisser le fallback en place.
 **Domaine concerné** : Signals & Content. Contenu cohérent avec les contraintes déjà définies dans `lp-pool.data.ts` (Family Office : accès co-invest exigé ; Fonds pension : limite de risque 25%).
+
+## [2026-09-19] Transition vers Trimestre 1 bloquée tant qu'aucun LP n'est engagé
+
+**Décision** : le CTA de fin de levée de fonds ("Lancer le premier trimestre") reste désactivé tant que `offers.some(o => o.status === 'committed')` est faux — au moins un LP doit être engagé pour avancer.
+**Raison** : le product-spec §3.1.4 dit littéralement que le joueur "peut rester sous la cible visée", ce qui autoriserait techniquement à avancer avec 0€ levé. Choix produit explicite de l'utilisateur d'imposer un minimum d'au moins 1 LP engagé, plus sécurisant pour la suite du run (démarrer un fonds à 0€ n'aurait pas de sens jouable).
+**Domaine concerné** : Game Loop (condition de transition) / UI (état du bouton). L'écran suivant est un placeholder minimal "Trimestre 1" en attendant la construction du deal flow.
