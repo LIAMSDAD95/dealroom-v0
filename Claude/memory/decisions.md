@@ -147,3 +147,16 @@
 **Décision** : implémentation du "braconnage" (product-spec §7.8, oublié à l'écriture initiale du deal flow). Au plus 1 carte du trimestre est marquée braconnée à la fois (jamais 2 simultanément), tirée aléatoirement parmi toutes les cartes du tour — carte PITCH incluse. Déclenchement indépendant des actions du joueur (pas lié à Creuser). Effet purement visuel (bandeau rouge + bordure pulsante + secousse 0.4s) : aucun changement réel du chrono, aucun effet mécanique.
 **Raison** : demande explicite de l'utilisateur, avec la maquette `vc-techwear-proposal_11.html` comme référence visuelle exacte (bandeau "⚠ UN CONCURRENT S'INTÉRESSE À CE DEAL" + bordure rouge sur la carte 02). Le but est un sentiment d'urgence, pas une nouvelle couche de complexité mécanique — d'où le choix de l'inclure sur la carte PITCH aussi, malgré l'absence de chrono sur cette carte.
 **Domaine concerné** : Game Loop (tirage de la carte braconnée) / UI (rendu visuel sur `DealCard.tsx`).
+
+## [2026-09-22] Scène de dialogue fondateur : périmètre V1 et structure des questions
+
+**Décision** : première version de la scène fondateur (§3.4) limitée au dialogue + révélation de signaux : attention (3) / patience (4), menu de questions au choix, révélation des signaux équipe/trompeur via les réponses, sortie sur un investissement à montant fixe. La cap table révélable et le curseur de ticket ajustable (aussi décrits au §3.4) sont reportés à un chantier séparé.
+Contenu : chaque archétype Phase 0 a une banque de 8-10 questions écrites (question + réponse du fondateur + signal révélé) ; 6 sont tirées aléatoirement à chaque scène.
+**Raison** : le §3.4 décrit une scène très riche — la découper permet de tester le dialogue avant d'ajouter la couche financière. La banque par archétype (plutôt que des questions génériques) garantit que revoir le même archétype au trimestre 5 propose des questions largement différentes, sur un run de 8 trimestres.
+**Domaine concerné** : Signals & Content (banque de questions fondateur) / Game Loop (résolution attention/patience) / UI (`FounderScene`).
+
+## [2026-09-22] Palette de la scène fondateur : orange au lieu du vert forest
+
+**Décision** : la scène de dialogue fondateur reprend la structure visuelle de la scène LP (modale 2 colonnes, sidebar + fil de chat) mais remplace `--forest` par un orange dédié pour la sidebar et les bulles du joueur.
+**Raison** : demande explicite — distinguer visuellement la scène fondateur de la scène LP, qui garde le vert (product-spec §7.10).
+**Domaine concerné** : UI (`tokens.css` gagne une variable dédiée, `FounderScene.module.css`).

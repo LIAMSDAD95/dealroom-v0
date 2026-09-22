@@ -13,6 +13,11 @@
   --signal-equipe: #4a8a82;
   --signal-trompeur: #c98a9e;
 
+  /* Scène de dialogue fondateur — orange dédié, distinct du vert des scènes LP (§7.10)
+     et des accents mustard/coral. Voir Claude/memory/decisions.md (2026-09-22). */
+  --founder-scene: #b5622a;
+  --founder-scene-dark: #8f4c20;
+
   --border-width: 2.5px;
   --border-color: #0a0a09;
 

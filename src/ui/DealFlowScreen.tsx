@@ -5,6 +5,7 @@ import type { LpOffer } from '../game-loop/lp-pool'
 import { STARTING_BANDWIDTH } from '../game-loop/resources'
 import { AppHeader } from './AppHeader'
 import { DealCard } from './DealCard'
+import { FounderScene } from './FounderScene'
 import styles from './DealFlowScreen.module.css'
 import { LpBadge } from './LpBadge'
 import { SectionLabel } from './SectionLabel'
@@ -30,6 +31,7 @@ export function DealFlowScreen({ deals, offers }: DealFlowScreenProps) {
   const [digDealIds, setDigDealIds] = useState<Set<string>>(new Set())
   const [bandwidth, setBandwidth] = useState(STARTING_BANDWIDTH)
   const [deployedCapital, setDeployedCapital] = useState(0)
+  const [pitchingDealId, setPitchingDealId] = useState<string | null>(null)
 
   const committedOffers = offers.filter((o) => o.status === 'committed')
   const totalRaised = committedOffers.reduce((sum, o) => sum + (o.committedAmount ?? 0), 0)
@@ -46,6 +48,7 @@ export function DealFlowScreen({ deals, offers }: DealFlowScreenProps) {
   }
 
   const remainingCapital = totalRaised - deployedCapital
+  const pitchingDeal = deals.find((d) => d.id === pitchingDealId) ?? null
 
   function handleInvest(dealId: string) {
     const deal = deals.find((d) => d.id === dealId)
@@ -115,14 +118,28 @@ export function DealFlowScreen({ deals, offers }: DealFlowScreenProps) {
                 onInvest={() => handleInvest(deal.id)}
                 onJoinPitch={() => {
                   if (remainingCapital <= 0) return
-                  // Scène de dialogue fondateur pas encore construite — prochain chantier.
-                  console.log('Rejoindre le pitch pour', deal.id)
+                  setPitchingDealId(deal.id)
                 }}
               />
             ))}
           </div>
         </div>
       </div>
+
+      {pitchingDeal && (
+        <FounderScene
+          // key : instance fraîche à chaque nouveau fondateur pitché, sinon l'état de la
+          // scène précédente persiste (voir Claude/memory/learnings.md, 2026-09-15).
+          key={pitchingDeal.id}
+          deal={pitchingDeal}
+          remainingCapital={remainingCapital}
+          onClose={() => setPitchingDealId(null)}
+          onInvest={(dealId) => {
+            handleInvest(dealId)
+            setPitchingDealId(null)
+          }}
+        />
+      )}
     </main>
   )
 }

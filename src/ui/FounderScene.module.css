@@ -1,0 +1,424 @@
+/* Scène de dialogue fondateur — product-spec §3.4/§7.10. Même grammaire que la scène LP
+   (modale 2 colonnes), mais sidebar et bulles joueur en orange au lieu du vert forest
+   réservé aux scènes LP (voir Claude/memory/decisions.md, 2026-09-22). */
+
+.overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 200;
+  padding: 1.5rem;
+}
+
+.modal {
+  width: 100%;
+  max-width: 920px;
+  max-height: 88vh;
+  overflow-y: auto;
+  background: var(--ink);
+  border: var(--border-width) solid var(--border-color);
+  border-radius: 20px;
+  box-shadow: 8px 8px 0 rgba(0, 0, 0, 0.4);
+  display: grid;
+  grid-template-columns: 280px 1fr;
+}
+
+@media (max-width: 760px) {
+  .modal {
+    grid-template-columns: 1fr;
+  }
+}
+
+.side {
+  background: var(--founder-scene);
+  color: var(--cream);
+  padding: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.1rem;
+  border-radius: 20px 0 0 20px;
+}
+
+@media (max-width: 760px) {
+  .side {
+    border-radius: 20px 20px 0 0;
+  }
+}
+
+.avatar {
+  width: 52px;
+  height: 52px;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.15);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-display);
+  font-weight: 800;
+  font-size: 1rem;
+}
+
+.founderName {
+  font-family: var(--font-display);
+  font-weight: 800;
+  font-size: 1.1rem;
+  text-transform: uppercase;
+  margin: 0;
+}
+
+.founderRole {
+  font-size: 0.625rem;
+  opacity: 0.75;
+  margin: 0;
+}
+
+.founderDesc {
+  font-size: 0.7rem;
+  opacity: 0.85;
+  line-height: 1.5;
+  margin: 0;
+}
+
+.gauge {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+.gaugeLabel {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.55rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  opacity: 0.8;
+}
+
+/* Jauges segmentées : un segment par point d'attention/patience plutôt qu'une barre
+   continue, pour que le joueur lise le coût d'une question d'un coup d'œil. */
+.segments {
+  display: flex;
+  gap: 0.25rem;
+}
+
+.segment {
+  flex: 1;
+  height: 9px;
+  border-radius: 3px;
+  background: rgba(0, 0, 0, 0.28);
+  transition: background 0.2s ease;
+}
+
+.segment[data-filled='true'] {
+  background: var(--cream);
+}
+
+.segment[data-filled='true'][data-low] {
+  background: var(--danger);
+}
+
+.logTitle {
+  font-size: 0.55rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  opacity: 0.7;
+  margin: auto 0 0.4rem;
+}
+
+.logEmpty {
+  font-size: 0.65rem;
+  opacity: 0.6;
+  font-style: italic;
+  margin: 0;
+}
+
+.logTag {
+  font-size: 0.6rem;
+  padding: 0.35rem 0.55rem;
+  border-radius: 6px;
+  margin: 0.35rem 0 0;
+  line-height: 1.4;
+  border: 1.5px solid rgba(0, 0, 0, 0.3);
+}
+
+/* product-spec §3.3 — même code couleur que les tags de carte deal flow */
+.logTag[data-family='equipe'] {
+  background: var(--signal-equipe);
+  color: var(--cream);
+}
+
+.logTag[data-family='trompeur'] {
+  background: var(--signal-trompeur);
+  color: var(--ink);
+}
+
+.main {
+  padding: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.1rem;
+  background: var(--ink);
+  border-radius: 0 20px 20px 0;
+}
+
+@media (max-width: 760px) {
+  .main {
+    border-radius: 0 0 20px 20px;
+  }
+}
+
+.closeButton {
+  align-self: flex-end;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  border: 1px solid #3a3a38;
+  background: transparent;
+  color: #c9c6bc;
+  cursor: pointer;
+  margin-top: -0.5rem;
+}
+
+.chatThread {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  min-height: 120px;
+  max-height: 300px;
+  overflow-y: auto;
+}
+
+.chatHint {
+  font-size: 0.75rem;
+  color: #8a8574;
+  font-style: italic;
+  margin: 0;
+  line-height: 1.5;
+}
+
+.msg {
+  display: flex;
+  gap: 0.55rem;
+  max-width: 85%;
+}
+
+.msg[data-from='founder'] {
+  align-self: flex-start;
+}
+
+.msg[data-from='player'] {
+  align-self: flex-end;
+  flex-direction: row-reverse;
+}
+
+.msgAvatar {
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.55rem;
+  font-weight: 800;
+  font-family: var(--font-display);
+}
+
+.msg[data-from='founder'] .msgAvatar {
+  background: var(--stone);
+  color: var(--ink);
+}
+
+.msg[data-from='player'] .msgAvatar {
+  background: var(--founder-scene);
+  color: var(--cream);
+}
+
+.msgBubble,
+.thinkingBubble {
+  padding: 0.7rem 0.9rem;
+  border-radius: 14px;
+  font-size: 0.8rem;
+  line-height: 1.55;
+}
+
+.msg[data-from='founder'] .msgBubble {
+  background: var(--stone);
+  color: var(--ink);
+  border-top-left-radius: 4px;
+}
+
+.msg[data-from='player'] .msgBubble {
+  background: var(--founder-scene);
+  color: var(--cream);
+  border-top-right-radius: 4px;
+}
+
+.thinkingBubble {
+  background: var(--stone);
+  color: var(--ink);
+  border-top-left-radius: 4px;
+  opacity: 0.75;
+  font-weight: 600;
+}
+
+.questionBlock {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+}
+
+.questionTitle {
+  font-size: 0.625rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: #8a8574;
+  margin: 0;
+}
+
+.qList {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.qItem {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+
+  padding: 0.75rem 0.85rem;
+  background: #1e1c19;
+  border: 1.5px solid #2a2a28;
+  border-radius: 10px;
+  cursor: pointer;
+  text-align: left;
+  font-family: var(--font-mono);
+}
+
+.qItem:hover:not(:disabled) {
+  border-color: var(--founder-scene);
+}
+
+.qItem:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+}
+
+.qText {
+  font-size: 0.78rem;
+  color: var(--cream);
+  line-height: 1.4;
+}
+
+.qCost {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.2rem;
+  flex-shrink: 0;
+
+  font-size: 0.7rem;
+  font-weight: 700;
+  color: var(--founder-scene);
+}
+
+.stopButton {
+  align-self: flex-start;
+  margin-top: 0.2rem;
+
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+
+  padding: 0.5rem 0.8rem;
+  border-radius: 8px;
+  border: 1.5px solid #3a3a38;
+  background: transparent;
+  color: #8a8574;
+  cursor: pointer;
+}
+
+.stopButton:hover {
+  border-color: var(--stone);
+  color: var(--stone);
+}
+
+.endCard {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  border: 1.5px solid var(--founder-scene);
+  border-radius: 12px;
+  padding: 1.1rem;
+  background: #1e1c19;
+}
+
+.endTitle {
+  font-family: var(--font-display);
+  font-weight: 800;
+  font-size: 1rem;
+  text-transform: uppercase;
+  color: var(--cream);
+  margin: 0;
+}
+
+.endText {
+  font-size: 0.75rem;
+  color: #8a8574;
+  line-height: 1.5;
+  margin: 0;
+}
+
+.endActions {
+  display: flex;
+  gap: 0.6rem;
+  flex-wrap: wrap;
+}
+
+.declineButton,
+.investButton {
+  flex: 1 1 auto;
+  min-width: 140px;
+
+  font-family: var(--font-mono);
+  font-weight: 700;
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+
+  padding: 0.8rem;
+  border-radius: 10px;
+  border: var(--border-width) solid var(--border-color);
+  box-shadow: var(--shadow-offset-btn) var(--shadow-offset-btn) 0 var(--shadow-color-btn);
+  cursor: pointer;
+  transition:
+    transform 0.08s ease,
+    box-shadow 0.08s ease;
+}
+
+.declineButton:hover,
+.investButton:hover:not(:disabled) {
+  transform: translate(2px, 2px);
+  box-shadow: 2px 2px 0 var(--shadow-color-btn);
+}
+
+.declineButton {
+  background: var(--stone);
+  color: var(--ink);
+}
+
+.investButton {
+  background: var(--mustard);
+  color: var(--ink);
+}
+
+.investButton:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+  transform: none;
+}
