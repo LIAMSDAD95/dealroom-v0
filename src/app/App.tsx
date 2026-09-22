@@ -14,7 +14,7 @@ import { DealFlowScreen } from '../ui/DealFlowScreen'
 type Screen =
   | { name: 'thesis' }
   | { name: 'fundraising'; thesis: Thesis }
-  | { name: 'deal-flow'; thesis: Thesis; deals: Deal[] }
+  | { name: 'deal-flow'; thesis: Thesis; deals: Deal[]; quarter: number }
 
 function App() {
   const [screen, setScreen] = useState<Screen>({ name: 'thesis' })
@@ -43,13 +43,13 @@ function App() {
         onProceedToQuarterOne={() => {
           // Deals générés une seule fois à l'entrée du trimestre (ADR-002), pas à chaque render.
           const deals = generateQuarterDeals(screen.thesis, 1)
-          setScreen({ name: 'deal-flow', thesis: screen.thesis, deals })
+          setScreen({ name: 'deal-flow', thesis: screen.thesis, deals, quarter: 1 })
         }}
       />
     )
   }
 
-  return <DealFlowScreen deals={screen.deals} offers={offers} />
+  return <DealFlowScreen deals={screen.deals} offers={offers} quarter={screen.quarter} />
 }
 
 export default App

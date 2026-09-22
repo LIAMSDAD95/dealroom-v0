@@ -86,10 +86,17 @@ export function DealCard({
   const urgency = secondsLeft <= 10 ? 'danger' : secondsLeft <= 20 ? 'warning' : 'normal'
 
   const showPoachingAlert = deal.isPoached && status !== 'passed' && status !== 'invested'
+  const isPassed = status === 'passed'
+  const isInvested = status === 'invested'
 
   if (deal.isDevelopedScene) {
     return (
-      <article className={styles.card} data-pitch="true" data-poached={showPoachingAlert || undefined}>
+      <article
+        className={styles.card}
+        data-pitch="true"
+        data-poached={showPoachingAlert || undefined}
+        data-invested={isInvested || undefined}
+      >
         {showPoachingAlert && (
           <div className={styles.poachingBanner}>
             <Icon name="alert-circle" size={14} />
@@ -120,20 +127,28 @@ export function DealCard({
 
         <DealTags tags={deal.tags} signalsRevealed={false} />
 
-        <button
-          type="button"
-          className={styles.pitchButton}
-          disabled={capitalExhausted}
-          onClick={onJoinPitch}
-        >
-          {capitalExhausted ? 'Capital épuisé' : 'Rejoindre le pitch →'}
-        </button>
+        {isInvested ? (
+          <button type="button" className={styles.investedButton} disabled>
+            <Icon name="check" size={14} />
+            Investi ({formatCapital(ticket)})
+          </button>
+        ) : isPassed ? (
+          <button type="button" className={styles.passedButton} disabled>
+            Opportunité écartée
+          </button>
+        ) : (
+          <button
+            type="button"
+            className={styles.pitchButton}
+            disabled={capitalExhausted}
+            onClick={onJoinPitch}
+          >
+            {capitalExhausted ? 'Capital épuisé' : 'Rejoindre le pitch →'}
+          </button>
+        )}
       </article>
     )
   }
-
-  const isPassed = status === 'passed'
-  const isInvested = status === 'invested'
 
   return (
     <article

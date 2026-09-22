@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import type { Deal } from '../game-loop/deal'
 import type { DealCardStatus } from '../game-loop/deal-flow'
+import { QUARTERS_PER_RUN } from '../game-loop/fund'
 import type { LpOffer } from '../game-loop/lp-pool'
 import { STARTING_BANDWIDTH } from '../game-loop/resources'
 import { AppHeader } from './AppHeader'
@@ -13,6 +14,8 @@ import { SectionLabel } from './SectionLabel'
 interface DealFlowScreenProps {
   deals: Deal[]
   offers: LpOffer[]
+  /** Numéro du trimestre en cours, de 1 à QUARTERS_PER_RUN (product-spec §2). */
+  quarter: number
 }
 
 function formatCapital(amount: number): string {
@@ -22,7 +25,7 @@ function formatCapital(amount: number): string {
   return `${Math.round(amount / 1_000)}K€`
 }
 
-export function DealFlowScreen({ deals, offers }: DealFlowScreenProps) {
+export function DealFlowScreen({ deals, offers, quarter }: DealFlowScreenProps) {
   const [statuses, setStatuses] = useState<Record<string, DealCardStatus>>(() =>
     Object.fromEntries(deals.map((d) => [d.id, 'pending'])),
   )
@@ -93,12 +96,18 @@ export function DealFlowScreen({ deals, offers }: DealFlowScreenProps) {
                 ))}
               </div>
             </div>
+            <div className={styles.resource}>
+              <span className={styles.resourceLabel}>TRIMESTRE</span>
+              <span className={styles.quarterValue}>
+                Q{quarter} <span className={styles.quarterTotal}>/ {QUARTERS_PER_RUN}</span>
+              </span>
+            </div>
           </>
         }
       />
 
       <div className={styles.content}>
-        <p className={styles.eyebrow}>TRIMESTRE 1</p>
+        <p className={styles.eyebrow}>TRIMESTRE {quarter}</p>
         <h1 className={styles.title}>DEAL FLOW</h1>
         <p className={styles.subtitle}>{deals.length} opportunités à l'étude</p>
 

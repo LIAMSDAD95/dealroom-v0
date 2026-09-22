@@ -243,6 +243,13 @@
   padding-top: 1.5rem;
 }
 
+/* Sur la carte PITCH, les états passé/investi remplacent le CTA : ils doivent rester
+   ancrés en bas comme lui (product-spec §7.3). */
+.card[data-pitch='true'] > .investedButton,
+.card[data-pitch='true'] > .passedButton {
+  margin-top: auto;
+}
+
 .pitchRibbon {
   position: absolute;
   top: 14px;
