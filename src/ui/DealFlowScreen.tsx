@@ -16,6 +16,14 @@ interface DealFlowScreenProps {
   offers: LpOffer[]
   /** Numéro du trimestre en cours, de 1 à QUARTERS_PER_RUN (product-spec §2). */
   quarter: number
+  /** Capital déjà déployé sur les trimestres précédents — cumulé sur tout le run. */
+  deployedCapital: number
+  /** Remonte chaque investissement pour que le cumul survive au changement de trimestre. */
+  onCapitalDeployed: (amount: number) => void
+  /** Clôture le trimestre : nouveau deal flow, bande passante réinitialisée. */
+  onAdvanceQuarter: () => void
+  /** Clôture le fonds au dernier trimestre. */
+  onCloseFund: () => void
 }
 
 function formatCapital(amount: number): string {
@@ -25,7 +33,15 @@ function formatCapital(amount: number): string {
   return `${Math.round(amount / 1_000)}K€`
 }
 
-export function DealFlowScreen({ deals, offers, quarter }: DealFlowScreenProps) {
+export function DealFlowScreen({
+  deals,
+  offers,
+  quarter,
+  deployedCapital,
+  onCapitalDeployed,
+  onAdvanceQuarter,
+  onCloseFund,
+}: DealFlowScreenProps) {
   const [statuses, setStatuses] = useState<Record<string, DealCardStatus>>(() =>
     Object.fromEntries(deals.map((d) => [d.id, 'pending'])),
   )
@@ -33,7 +49,6 @@ export function DealFlowScreen({ deals, offers, quarter }: DealFlowScreenProps) 
   // suivi séparément de `deals` (donnée statique) pour ne pas muter la source de vérité.
   const [digDealIds, setDigDealIds] = useState<Set<string>>(new Set())
   const [bandwidth, setBandwidth] = useState(STARTING_BANDWIDTH)
-  const [deployedCapital, setDeployedCapital] = useState(0)
   const [pitchingDealId, setPitchingDealId] = useState<string | null>(null)
 
   const committedOffers = offers.filter((o) => o.status === 'committed')
@@ -52,13 +67,14 @@ export function DealFlowScreen({ deals, offers, quarter }: DealFlowScreenProps) 
 
   const remainingCapital = totalRaised - deployedCapital
   const pitchingDeal = deals.find((d) => d.id === pitchingDealId) ?? null
+  const isLastQuarter = quarter >= QUARTERS_PER_RUN
 
   function handleInvest(dealId: string) {
     const deal = deals.find((d) => d.id === dealId)
     if (!deal) return
     // Ne jamais dépasser le capital réellement levé auprès des LPs (retour utilisateur 2026-09-19).
     if (deal.askAmount > remainingCapital) return
-    setDeployedCapital((c) => c + deal.askAmount)
+    onCapitalDeployed(deal.askAmount)
     setStatuses((s) => ({ ...s, [dealId]: 'invested' }))
   }
 
@@ -133,6 +149,14 @@ export function DealFlowScreen({ deals, offers, quarter }: DealFlowScreenProps) 
             ))}
           </div>
         </div>
+
+        <button
+          type="button"
+          className={styles.advanceButton}
+          onClick={isLastQuarter ? onCloseFund : onAdvanceQuarter}
+        >
+          {isLastQuarter ? 'Clôturer le fonds →' : `Passer au trimestre ${quarter + 1} →`}
+        </button>
       </div>
 
       {pitchingDeal && (
