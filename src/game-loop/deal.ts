@@ -29,4 +29,7 @@ export interface Deal {
   tags: DealTag[]
   /** true si cette carte ouvre la scène de dialogue développée plutôt qu'une décision rapide (§3.2). */
   isDevelopedScene: boolean
+  /** product-spec §7.8 — effet purement visuel (aucun changement réel du chrono). Au plus
+   * 1 carte braconnée par tour, voir Claude/memory/decisions.md (2026-09-21). */
+  isPoached: boolean
 }

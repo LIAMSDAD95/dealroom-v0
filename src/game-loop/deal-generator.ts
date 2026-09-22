@@ -14,6 +14,10 @@ import type { FounderArchetypeId } from '../signals-content/types'
 
 export const DEALS_PER_QUARTER = 4
 
+// product-spec §7.8 — probabilité qu'une carte du tour soit braconnée (0 ou 1 carte max,
+// jamais garanti à chaque tour pour ne pas user l'effet de surprise).
+const POACHING_PROBABILITY = 0.35
+
 function pickRandom<T>(items: T[]): T {
   return items[Math.floor(Math.random() * items.length)]
 }
@@ -65,6 +69,10 @@ interface SectorProfile {
 export function generateQuarterDeals(thesis: Thesis, quarterNumber: number): Deal[] {
   const archetypeIds = activePhase0ArchetypeIds()
   const developedSceneIndex = Math.floor(Math.random() * DEALS_PER_QUARTER)
+  // Au plus 1 carte braconnée par tour, jamais garanti (product-spec §7.8) — voir
+  // Claude/memory/decisions.md (2026-09-21).
+  const poachedIndex =
+    Math.random() < POACHING_PROBABILITY ? Math.floor(Math.random() * DEALS_PER_QUARTER) : -1
 
   const availableProfiles: SectorProfile[] = thesis.sectors.flatMap((sector) =>
     companyProfilesBySector[sector].map((profile) => ({ sector, profile })),
@@ -88,6 +96,7 @@ export function generateQuarterDeals(thesis: Thesis, quarterNumber: number): Dea
       attemptNumber: 1 + Math.floor(Math.random() * 3),
       tags: generateTags(archetypeId),
       isDevelopedScene: i === developedSceneIndex,
+      isPoached: i === poachedIndex,
     }
   })
 }

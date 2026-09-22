@@ -311,3 +311,76 @@
   transform: translate(2px, 2px);
   box-shadow: 2px 2px 0 var(--shadow-color-btn);
 }
+
+/* product-spec §7.8 — braconnage : effet purement visuel, aucun changement réel du chrono */
+.card[data-poached] {
+  animation:
+    poachShake 0.4s ease-in-out,
+    poachGlow 1.1s ease-in-out 0.4s infinite;
+}
+
+@keyframes poachShake {
+  0%,
+  100% {
+    transform: translateX(0);
+  }
+  20% {
+    transform: translateX(-4px);
+  }
+  40% {
+    transform: translateX(4px);
+  }
+  60% {
+    transform: translateX(-3px);
+  }
+  80% {
+    transform: translateX(3px);
+  }
+}
+
+@keyframes poachGlow {
+  0%,
+  100% {
+    box-shadow:
+      0 0 0 3px var(--danger),
+      0 0 26px 4px rgba(192, 57, 43, 0.55);
+  }
+  50% {
+    box-shadow:
+      0 0 0 3px var(--danger),
+      0 0 8px 1px rgba(192, 57, 43, 0.2);
+  }
+}
+
+.poachingBanner {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+
+  background: var(--danger);
+  color: var(--cream);
+  font-family: var(--font-display);
+  font-weight: 800;
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+
+  padding: 0.5rem 0.75rem;
+  border-radius: 8px;
+  margin: -0.25rem -0.25rem 0.1rem;
+}
+
+.poachingBanner svg {
+  animation: poachIconPulse 0.9s ease-in-out infinite;
+  flex-shrink: 0;
+}
+
+@keyframes poachIconPulse {
+  0%,
+  100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.3);
+  }
+}
