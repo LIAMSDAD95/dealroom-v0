@@ -22,11 +22,22 @@ function pickRandom<T>(items: T[]): T {
   return items[Math.floor(Math.random() * items.length)]
 }
 
+// Fisher-Yates — un `sort()` avec comparateur aléatoire ne produit pas une permutation
+// uniforme et biaise les positions de début de liste.
+function shuffle<T>(items: T[]): T[] {
+  const result = [...items]
+  for (let i = result.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1))
+    ;[result[i], result[j]] = [result[j], result[i]]
+  }
+  return result
+}
+
 // Pioche `count` éléments sans répétition tant que la banque le permet — ne se remet à
 // répéter que si elle est plus petite que `count` (évite les doublons de carte à carte,
 // voir Claude/memory/blockers.md 2026-09-19 "noms de startup dupliqués").
 function pickManyNoRepeat<T>(items: T[], count: number): T[] {
-  const shuffled = [...items].sort(() => Math.random() - 0.5)
+  const shuffled = shuffle(items)
   const result: T[] = []
   for (let i = 0; i < count; i++) {
     result.push(shuffled[i % shuffled.length])
@@ -63,10 +74,18 @@ interface SectorProfile {
 /**
  * Compose DEALS_PER_QUARTER deals respectant strictement la thèse (secteur ET zone ET
  * stade) — voir Claude/memory/adr.md (ADR-002). Exactement 1 deal est marqué scène
- * développée par tour. Les profils de startup ne se répètent pas au sein d'un même tour
- * tant que la banque le permet.
+ * développée par tour.
+ *
+ * `alreadySeen` porte les noms de startup déjà apparus plus tôt dans le run : le
+ * générateur reste stateless (ADR-002), c'est l'appelant qui tient la mémoire. Les profils
+ * déjà vus sont écartés en priorité ; la banque n'est rouverte que si elle est épuisée,
+ * car un run consomme 32 profils (8 × 4) pour une banque d'environ 28 sur deux secteurs.
  */
-export function generateQuarterDeals(thesis: Thesis, quarterNumber: number): Deal[] {
+export function generateQuarterDeals(
+  thesis: Thesis,
+  quarterNumber: number,
+  alreadySeen: ReadonlySet<string> = new Set(),
+): Deal[] {
   const archetypeIds = activePhase0ArchetypeIds()
   const developedSceneIndex = Math.floor(Math.random() * DEALS_PER_QUARTER)
   // Au plus 1 carte braconnée par tour, jamais garanti (product-spec §7.8) — voir
@@ -74,10 +93,22 @@ export function generateQuarterDeals(thesis: Thesis, quarterNumber: number): Dea
   const poachedIndex =
     Math.random() < POACHING_PROBABILITY ? Math.floor(Math.random() * DEALS_PER_QUARTER) : -1
 
-  const availableProfiles: SectorProfile[] = thesis.sectors.flatMap((sector) =>
+  const allProfiles: SectorProfile[] = thesis.sectors.flatMap((sector) =>
     companyProfilesBySector[sector].map((profile) => ({ sector, profile })),
   )
-  const chosenProfiles = pickManyNoRepeat(availableProfiles, DEALS_PER_QUARTER)
+  // Priorité aux profils jamais vus dans ce run. On ne retombe sur la banque complète que
+  // si les profils frais ne suffisent plus à remplir le trimestre.
+  const freshProfiles = allProfiles.filter((p) => !alreadySeen.has(p.profile.companyName))
+  const chosenProfiles =
+    freshProfiles.length >= DEALS_PER_QUARTER
+      ? pickManyNoRepeat(freshProfiles, DEALS_PER_QUARTER)
+      : [
+          ...shuffle(freshProfiles),
+          ...pickManyNoRepeat(
+            allProfiles.filter((p) => alreadySeen.has(p.profile.companyName)),
+            DEALS_PER_QUARTER - freshProfiles.length,
+          ),
+        ]
 
   return chosenProfiles.map(({ sector, profile }, i) => {
     const archetypeId = pickRandom(archetypeIds)

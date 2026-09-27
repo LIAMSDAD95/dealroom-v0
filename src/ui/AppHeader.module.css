@@ -31,3 +31,53 @@
   text-transform: uppercase;
   letter-spacing: 0.02em;
 }
+
+/* Accès au récap de portefeuille — présent sur tous les écrans une fois le fonds levé.
+   Volontairement discret (bordure fine, pas d'ombre portée) : c'est un outil de
+   consultation, il ne doit pas concurrencer visuellement les actions du deal flow. */
+.portfolioButton {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  margin-left: 1.5rem;
+
+  font-family: var(--font-mono);
+  font-weight: 700;
+  font-size: 0.62rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+
+  padding: 0.5rem 0.7rem;
+  border-radius: 8px;
+  border: 1.5px solid #3a3a38;
+  background: transparent;
+  color: var(--stone);
+  cursor: pointer;
+  transition:
+    border-color 0.12s ease,
+    color 0.12s ease;
+}
+
+.portfolioButton[data-standalone] {
+  margin-left: auto;
+}
+
+.portfolioButton:hover {
+  border-color: var(--mustard);
+  color: var(--cream);
+}
+
+.portfolioCount {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 18px;
+  height: 18px;
+  padding: 0 0.25rem;
+
+  border-radius: 5px;
+  background: var(--mustard);
+  color: var(--ink);
+  font-size: 0.6rem;
+  font-weight: 800;
+}

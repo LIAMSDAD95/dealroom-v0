@@ -1,0 +1,524 @@
+/* Scène de crise macro — product-spec §3.6. Plein écran (pas une modale comme les scènes
+   LP/fondateur) : c'est une interruption du trimestre, pas une conversation qu'on choisit
+   d'ouvrir. Bandeau d'alerte rouge, sidebar forest avec la ligne touchée, fil de discussion,
+   grille de 4 décisions. Voir maquette vc-techwear-crisis_7.html. */
+
+.screen {
+  min-height: 100vh;
+  padding-bottom: 3rem;
+}
+
+.content {
+  max-width: 1080px;
+  margin: 0 auto;
+  padding: 1.75rem 1.5rem 0;
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+/* --- Barre de ressources dans le header --- */
+
+.resource {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+  text-align: right;
+}
+
+.resourceLabel {
+  font-size: 0.5rem;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: #8a8574;
+}
+
+.resourceValue {
+  font-family: var(--font-display);
+  font-weight: 800;
+  font-size: 0.9rem;
+  color: var(--cream);
+}
+
+/* --- Titre de l'écran — même grammaire que le deal flow (eyebrow + gros titre) --- */
+
+.heading {
+  margin-bottom: 0.25rem;
+}
+
+.eyebrow {
+  font-size: 0.625rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: #7a776e;
+  margin: 0;
+}
+
+.title {
+  font-family: var(--font-display);
+  font-weight: 900;
+  text-transform: uppercase;
+  font-size: 2.5rem;
+  line-height: 0.95;
+  color: var(--cream);
+  margin: 0.5rem 0 0;
+}
+
+/* --- Bandeau d'alerte --- */
+
+.alertBanner {
+  display: flex;
+  align-items: center;
+  gap: 0.9rem;
+
+  padding: 0.95rem 1.1rem;
+  background: var(--danger);
+  color: var(--cream);
+  border: var(--border-width) solid var(--border-color);
+  border-radius: 12px;
+  box-shadow: var(--shadow-offset-card) var(--shadow-offset-card) 0 var(--shadow-color-card);
+}
+
+.alertIcon {
+  display: flex;
+  flex-shrink: 0;
+}
+
+.alertTitle {
+  font-family: var(--font-display);
+  font-weight: 800;
+  font-size: 1.05rem;
+  text-transform: uppercase;
+  letter-spacing: 0.01em;
+  margin: 0;
+}
+
+.alertSub {
+  font-size: 0.65rem;
+  opacity: 0.85;
+  margin: 0.2rem 0 0;
+}
+
+/* --- Layout 2 colonnes --- */
+
+.layout {
+  display: grid;
+  grid-template-columns: 280px 1fr;
+  gap: 1.25rem;
+  align-items: start;
+}
+
+@media (max-width: 860px) {
+  .layout {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* --- Sidebar : la ligne de portefeuille touchée --- */
+
+.side {
+  position: relative;
+  background: var(--forest);
+  color: var(--cream);
+  padding: 1.4rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.3rem;
+
+  border: var(--border-width) solid var(--border-color);
+  border-radius: 16px;
+  box-shadow: var(--shadow-offset-card) var(--shadow-offset-card) 0 var(--shadow-color-card);
+}
+
+/* La ligne a quitté le portefeuille (atterrissage doux) : la sidebar passe en gris éteint. */
+.side[data-exited] {
+  background: #4a4842;
+}
+
+.exitRibbon {
+  position: absolute;
+  top: 0.9rem;
+  right: 0.9rem;
+
+  font-family: var(--font-mono);
+  font-size: 0.55rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+
+  padding: 0.25rem 0.5rem;
+  border-radius: 5px;
+  background: var(--ink);
+  color: var(--stone);
+}
+
+.sideAvatar {
+  width: 52px;
+  height: 52px;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.15);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-display);
+  font-weight: 800;
+  font-size: 1rem;
+  margin-bottom: 0.7rem;
+}
+
+.sideName {
+  font-family: var(--font-display);
+  font-weight: 800;
+  font-size: 1.1rem;
+  text-transform: uppercase;
+  margin: 0;
+}
+
+.sideRole {
+  font-size: 0.6rem;
+  opacity: 0.75;
+  letter-spacing: 0.03em;
+  margin: 0.2rem 0 0;
+  line-height: 1.4;
+}
+
+/* --- Jauge "réaction attendue" --- */
+
+.predictLabel {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+
+  font-size: 0.55rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  opacity: 0.85;
+  margin: 0 0 0.5rem;
+}
+
+/* La largeur de la barre dit la FIABILITÉ de la prédiction, pas la résilience elle-même :
+   à l'aveugle elle est presque vide, ce qui signale au joueur qu'il ne sait rien (§3.6). */
+.predictBar {
+  height: 10px;
+  border-radius: 4px;
+  background: rgba(0, 0, 0, 0.3);
+  overflow: hidden;
+}
+
+.predictFill {
+  height: 100%;
+  background: var(--cream);
+  border-radius: 4px;
+  transition: width 0.3s ease;
+}
+
+.predictVerdict {
+  font-family: var(--font-display);
+  font-weight: 800;
+  font-size: 0.85rem;
+  text-transform: uppercase;
+  margin: 0.45rem 0 0;
+}
+
+.predictNote {
+  font-size: 0.62rem;
+  opacity: 0.8;
+  line-height: 1.45;
+  margin: 0.25rem 0 0;
+}
+
+/* --- Signaux équipe connus --- */
+
+.knownTitle {
+  font-size: 0.55rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  opacity: 0.7;
+  margin: 0 0 0.5rem;
+}
+
+.knownEmpty {
+  font-size: 0.65rem;
+  opacity: 0.65;
+  font-style: italic;
+  line-height: 1.45;
+  margin: 0;
+}
+
+.knownList {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+.knownSignal {
+  font-size: 0.6rem;
+  line-height: 1.4;
+  padding: 0.35rem 0.55rem;
+  border-radius: 6px;
+  margin: 0;
+  background: var(--signal-equipe);
+  color: var(--cream);
+  border: 1.5px solid rgba(0, 0, 0, 0.3);
+}
+
+/* --- Colonne principale --- */
+
+.main {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+.chatThread {
+  display: flex;
+  flex-direction: column;
+  gap: 0.8rem;
+
+  padding: 1.2rem;
+  background: var(--ink);
+  border: var(--border-width) solid var(--border-color);
+  border-radius: 16px;
+  box-shadow: var(--shadow-offset-card) var(--shadow-offset-card) 0 var(--shadow-color-card);
+}
+
+.msg {
+  display: flex;
+  gap: 0.55rem;
+  max-width: 88%;
+  align-self: flex-start;
+}
+
+.msgAvatar {
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.55rem;
+  font-weight: 800;
+  font-family: var(--font-display);
+}
+
+.msg[data-from='system'] .msgAvatar {
+  background: var(--danger);
+  color: var(--cream);
+}
+
+.msg[data-from='founder'] .msgAvatar {
+  background: var(--stone);
+  color: var(--ink);
+}
+
+.msgBubble {
+  padding: 0.75rem 0.95rem;
+  border-radius: 14px;
+  font-size: 0.8rem;
+  line-height: 1.6;
+  border-top-left-radius: 4px;
+}
+
+.msg[data-from='system'] .msgBubble {
+  background: #2a1a17;
+  color: var(--cream);
+  border: 1.5px solid var(--danger);
+}
+
+.msg[data-from='founder'] .msgBubble {
+  background: var(--stone);
+  color: var(--ink);
+}
+
+/* --- Grille de décision --- */
+
+.decisionHead {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 0.7rem;
+}
+
+.decisionTitle {
+  font-family: var(--font-display);
+  font-weight: 800;
+  font-size: 0.85rem;
+  letter-spacing: 0.04em;
+  color: var(--cream);
+}
+
+.decisionSub {
+  font-size: 0.55rem;
+  letter-spacing: 0.06em;
+  color: #8a8574;
+}
+
+.decisionGrid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 0.75rem;
+}
+
+@media (max-width: 620px) {
+  .decisionGrid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.dcard {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  text-align: left;
+
+  padding: 1rem;
+  background: var(--ink);
+  border: var(--border-width) solid var(--border-color);
+  border-radius: 12px;
+  box-shadow: var(--shadow-offset-btn) var(--shadow-offset-btn) 0 var(--shadow-color-btn);
+  cursor: pointer;
+  font-family: var(--font-mono);
+  transition:
+    transform 0.08s ease,
+    box-shadow 0.08s ease,
+    border-color 0.12s ease;
+}
+
+.dcard:hover:not(:disabled) {
+  transform: translate(2px, 2px);
+  box-shadow: 2px 2px 0 var(--shadow-color-btn);
+}
+
+.dcard[data-selected] {
+  border-color: var(--mustard);
+  background: #1e1c19;
+}
+
+.dcard:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+  transform: none;
+}
+
+/* Une fois la décision résolue, on garde la carte choisie lisible mais rien n'est cliquable. */
+.decisionGrid[data-locked] .dcard:not([data-selected]) {
+  opacity: 0.3;
+}
+
+.dIcon {
+  display: flex;
+  color: var(--mustard);
+}
+
+.dName {
+  font-family: var(--font-display);
+  font-weight: 800;
+  font-size: 0.85rem;
+  text-transform: uppercase;
+  color: var(--cream);
+}
+
+.dDesc {
+  font-size: 0.7rem;
+  line-height: 1.5;
+  color: #8a8574;
+}
+
+.dCost {
+  font-size: 0.62rem;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  color: var(--coral);
+  margin-top: 0.15rem;
+}
+
+/* --- Confirmation & résultat --- */
+
+.confirmButton,
+.continueButton {
+  width: 100%;
+  margin-top: 1rem;
+
+  font-family: var(--font-mono);
+  font-weight: 700;
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+
+  padding: 0.95rem;
+  border-radius: 10px;
+  border: var(--border-width) solid var(--border-color);
+  box-shadow: var(--shadow-offset-btn) var(--shadow-offset-btn) 0 var(--shadow-color-btn);
+  cursor: pointer;
+  transition:
+    transform 0.08s ease,
+    box-shadow 0.08s ease;
+}
+
+.confirmButton:hover,
+.continueButton:hover {
+  transform: translate(2px, 2px);
+  box-shadow: 2px 2px 0 var(--shadow-color-btn);
+}
+
+.confirmButton {
+  background: var(--mustard);
+  color: var(--ink);
+}
+
+.continueButton {
+  background: var(--stone);
+  color: var(--ink);
+}
+
+.outcomePanel {
+  margin-top: 1rem;
+  padding: 1.2rem;
+  background: #1e1c19;
+  border: 1.5px solid var(--mustard);
+  border-radius: 12px;
+}
+
+.outcomeTitle {
+  font-family: var(--font-display);
+  font-weight: 800;
+  font-size: 1rem;
+  text-transform: uppercase;
+  color: var(--cream);
+  margin: 0;
+}
+
+.outcomeSpecs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1.5rem;
+  margin: 0.9rem 0;
+}
+
+.outcomeItem {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+}
+
+.outcomeLabel {
+  font-size: 0.5rem;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: #8a8574;
+}
+
+.outcomeValue {
+  font-family: var(--font-display);
+  font-weight: 800;
+  font-size: 0.95rem;
+  color: var(--mustard);
+}
+
+.outcomeText {
+  font-size: 0.78rem;
+  line-height: 1.6;
+  color: #a8a396;
+  margin: 0;
+}

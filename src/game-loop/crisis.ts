@@ -1,0 +1,217 @@
+// Crise macro — product-spec §3.6. Domaine Game Loop : déclenchement, ciblage d'une
+// ligne du portefeuille, prédictibilité proportionnelle aux signaux équipe connus, et
+// résolution des 4 options. Le texte vit dans Signals & Content (crisis-events.ts).
+
+import type { CrisisEvent } from '../signals-content/crisis-events'
+import { crisisEvents } from '../signals-content/crisis-events'
+import { founderArchetypes } from '../signals-content/founders'
+import type { FounderResilience } from '../signals-content/types'
+import type { PortfolioLine } from './portfolio'
+import { activeLines } from './portfolio'
+
+/** Aucune crise avant ce trimestre (voir Claude/memory/decisions.md, 2026-09-24). */
+export const FIRST_CRISIS_QUARTER = 4
+
+/** Probabilité qu'une crise se déclenche à un trimestre éligible. */
+const CRISIS_PROBABILITY = 0.5
+
+/** Coût en capital de "Soutenir en urgence" — pioché dans le capital restant. */
+export const SUPPORT_COST = 120_000
+
+/** Part du ticket récupérée en sortie anticipée ("Atterrissage doux"). */
+const SOFT_LANDING_RECOVERY_RATE = 0.4
+
+export type CrisisDecision = 'soutenir' | 'laisser' | 'atterrissage' | 'reseau'
+
+export interface Crisis {
+  event: CrisisEvent
+  /** Ligne du portefeuille touchée. */
+  line: PortfolioLine
+}
+
+/**
+ * Tire une crise pour ce trimestre, ou null si aucune ne se déclenche.
+ * Jamais avant FIRST_CRISIS_QUARTER, et jamais si le portefeuille actif est vide
+ * (product-spec §3.6 : "zéro exposition = pas de scène").
+ */
+export function maybeTriggerCrisis(portfolio: PortfolioLine[], quarter: number): Crisis | null {
+  if (quarter < FIRST_CRISIS_QUARTER) return null
+
+  const lines = activeLines(portfolio)
+  if (lines.length === 0) return null
+  if (Math.random() >= CRISIS_PROBABILITY) return null
+
+  const line = lines[Math.floor(Math.random() * lines.length)]
+  // Seuls les événements qui touchent le secteur de la ligne ciblée sont éligibles.
+  const eligible = crisisEvents.filter(
+    (e) => e.affectedSectors === null || e.affectedSectors.includes(line.deal.sector),
+  )
+  if (eligible.length === 0) return null
+
+  return { event: eligible[Math.floor(Math.random() * eligible.length)], line }
+}
+
+export function resilienceOf(line: PortfolioLine): FounderResilience {
+  const archetype = founderArchetypes.find((a) => a.id === line.deal.founderArchetypeId)
+  return archetype?.resilience ?? 'fragile'
+}
+
+export type PredictionReliability = 'blind' | 'partial' | 'reliable'
+
+export interface CrisisPrediction {
+  reliability: PredictionReliability
+  /** Ce que le joueur croit savoir — faux quand la prédiction n'est pas fiable. */
+  predictedResilience: FounderResilience
+  note: string
+}
+
+/**
+ * product-spec §3.6 — prédictibilité proportionnelle : la fiabilité de la "réaction
+ * attendue" dépend du nombre de signaux équipe révélés en due diligence. Sans signal,
+ * la prédiction affichée est un pur pari (et peut être fausse).
+ */
+export function predictReaction(line: PortfolioLine): CrisisPrediction {
+  const signalCount = line.knownTeamSignals.length
+  const actual = resilienceOf(line)
+
+  if (signalCount === 0) {
+    // À l'aveugle : la prédiction affichée est tirée au hasard, elle vaut ce qu'elle vaut.
+    return {
+      reliability: 'blind',
+      predictedResilience: Math.random() < 0.5 ? 'resilient' : 'fragile',
+      note: 'Aucun signal équipe révélé en due diligence. Cette prédiction est un pari.',
+    }
+  }
+
+  if (signalCount === 1) {
+    // Partiel : juste la plupart du temps, mais pas toujours.
+    const correct = Math.random() < 0.7
+    return {
+      reliability: 'partial',
+      predictedResilience: correct ? actual : actual === 'resilient' ? 'fragile' : 'resilient',
+      note: 'Basée sur 1 seul signal équipe révélé. Prédiction incertaine.',
+    }
+  }
+
+  return {
+    reliability: 'reliable',
+    predictedResilience: actual,
+    note: `Basée sur ${signalCount} signaux équipe révélés en due diligence. Prédiction fiable.`,
+  }
+}
+
+export interface CrisisOutcome {
+  title: string
+  specs: { label: string; value: string }[]
+  text: string
+  /** Variation du capital : négative si ça coûte, positive si ça récupère. */
+  capitalDelta: number
+  /** Coût en bande passante (mobiliser son réseau). */
+  bandwidthCost: number
+  /** true si la ligne quitte le portefeuille actif (atterrissage en douceur). */
+  closesLine: boolean
+}
+
+/** Résout une décision de crise — le résultat dépend de la résilience RÉELLE du fondateur. */
+export function resolveCrisisDecision(
+  crisis: Crisis,
+  decision: CrisisDecision,
+): CrisisOutcome {
+  const resilience = resilienceOf(crisis.line)
+  const company = crisis.line.deal.companyName
+  const founder = crisis.line.deal.founderName
+
+  if (decision === 'soutenir') {
+    return resilience === 'resilient'
+      ? {
+          title: '✓ Bridge injecté',
+          specs: [
+            { label: 'Coût', value: `-${SUPPORT_COST / 1000}K€` },
+            { label: 'Résultat', value: 'Ligne renforcée' },
+          ],
+          text: `Le bridge couvre le trou de trésorerie. ${founder} en fait exactement ce qui était prévu — ${company} traverse la crise sans perdre sa trajectoire.`,
+          capitalDelta: -SUPPORT_COST,
+          bandwidthCost: 0,
+          closesLine: false,
+        }
+      : {
+          title: '✕ Bridge absorbé sans effet',
+          specs: [
+            { label: 'Coût', value: `-${SUPPORT_COST / 1000}K€` },
+            { label: 'Résultat', value: 'Problème repoussé' },
+          ],
+          text: `L'argent part dans le trou sans corriger la cause. ${founder} gagne un trimestre, mais rien dans sa façon de piloter ne change — le même choc reviendra.`,
+          capitalDelta: -SUPPORT_COST,
+          bandwidthCost: 0,
+          closesLine: false,
+        }
+  }
+
+  if (decision === 'laisser') {
+    return resilience === 'resilient'
+      ? {
+          title: '○ Aucune intervention',
+          specs: [
+            { label: 'Coût', value: 'Gratuit' },
+            { label: 'Résultat', value: 'Choc absorbé' },
+          ],
+          text: `${founder} gère seul. Sa discipline se confirme sous pression réelle — ${company} encaisse sans aide extérieure, et tu n'as rien dépensé.`,
+          capitalDelta: 0,
+          bandwidthCost: 0,
+          closesLine: false,
+        }
+      : {
+          title: '✕ Aucune intervention — la ligne décroche',
+          specs: [
+            { label: 'Coût', value: 'Gratuit' },
+            { label: 'Résultat', value: 'Ligne fragilisée' },
+          ],
+          text: `Sans soutien, ${founder} encaisse mal le choc. ${company} sort du trimestre nettement affaibli — le risque assumé s'est matérialisé.`,
+          capitalDelta: 0,
+          bandwidthCost: 0,
+          closesLine: false,
+        }
+  }
+
+  if (decision === 'reseau') {
+    // Effet incertain par construction (§3.6), indépendamment de la résilience.
+    const worked = Math.random() < 0.6
+    return worked
+      ? {
+          title: '~ Réseau mobilisé — effet partiel',
+          specs: [
+            { label: 'Coût', value: '-1 bande passante' },
+            { label: 'Résultat', value: 'Tension retombée' },
+          ],
+          text: `Une introduction bien placée désamorce une partie du problème. Pas une solution complète, mais ${company} gagne du temps sans que tu sortes de capital.`,
+          capitalDelta: 0,
+          bandwidthCost: 1,
+          closesLine: false,
+        }
+      : {
+          title: '✕ Réseau mobilisé sans effet',
+          specs: [
+            { label: 'Coût', value: '-1 bande passante' },
+            { label: 'Résultat', value: 'Sans effet' },
+          ],
+          text: `Les contacts ne donnent rien d'exploitable à temps. Tu as dépensé de la bande passante pour rien — ${company} se retrouve au même point.`,
+          capitalDelta: 0,
+          bandwidthCost: 1,
+          closesLine: false,
+        }
+  }
+
+  // Atterrissage en douceur : sortie anticipée, upside définitivement abandonné (§3.6).
+  const recovered = Math.round(crisis.line.investedAmount * SOFT_LANDING_RECOVERY_RATE)
+  return {
+    title: '■ Ligne clôturée — sortie anticipée',
+    specs: [
+      { label: 'Capital récupéré', value: `+${Math.round(recovered / 1000)}K€` },
+      { label: 'Multiple sur ce ticket', value: `${SOFT_LANDING_RECOVERY_RATE.toFixed(1)}×` },
+    ],
+    text: `Rachat partiel accepté. Tu coupes la perte maintenant — mais tu ne sauras jamais si ${company} s'en serait sorti. Cette ligne quitte ton portefeuille actif.`,
+    capitalDelta: recovered,
+    bandwidthCost: 0,
+    closesLine: true,
+  }
+}

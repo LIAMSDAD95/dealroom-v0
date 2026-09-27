@@ -1,10 +1,11 @@
 // Banque de noms de startups et pitchs, indexée par secteur — ADR-002. Le générateur de
 // deal flow (src/game-loop/deal-generator.ts) pioche un profil par secteur retenu dans la
 // thèse du joueur, puis lui assigne un fondateur (founder-names.ts) et un archétype.
-// 15-18 profils par secteur : le run dure 8 trimestres × 4 deals = 32 tirages, et la thèse
-// impose désormais au moins 2 secteurs (MIN_SECTORS, voir thesis.ts) — avec 2 secteurs
-// combinés ça fait 30-36 profils disponibles pour tout le run, la répétition redevient rare
-// sans logique de mémoire inter-trimestres (voir Claude/memory/decisions.md, 2026-09-20).
+// Au moins 16 profils par secteur : le run dure 8 trimestres × 4 deals = 32 tirages, et la
+// thèse impose au moins 2 secteurs (MIN_SECTORS, voir thesis.ts) — le pire cas (2 secteurs
+// à 16) couvre donc exactement les 32 tirages du run. Ce plancher est ce qui permet au
+// générateur de ne jamais rejouer une startup déjà vue (voir Claude/memory/decisions.md,
+// 2026-09-24 "startup qui revient d'un trimestre à l'autre").
 
 import type { Sector } from '../game-loop/thesis'
 
@@ -31,6 +32,8 @@ export const companyProfilesBySector: Record<Sector, CompanyProfile[]> = {
     { companyName: 'Statusly', pitch: 'SaaS pages de statut pour SaaS', ticker: '$STAT' },
     { companyName: 'Vendorly', pitch: 'SaaS gestion de fournisseurs', ticker: '$VNDR' },
     { companyName: 'Auditcraft', pitch: 'SaaS préparation d’audits qualité', ticker: '$AUDC' },
+    { companyName: 'Shiftlog', pitch: 'SaaS suivi d’interventions terrain', ticker: '$SHFL' },
+    { companyName: 'Renewly', pitch: 'SaaS pilotage des renouvellements d’abonnement', ticker: '$RNWL' },
   ],
   fintech: [
     { companyName: 'Paivo', pitch: 'Paiements fractionnés B2B', ticker: '$PAIVO' },
@@ -46,6 +49,9 @@ export const companyProfilesBySector: Record<Sector, CompanyProfile[]> = {
     { companyName: 'Expensea', pitch: 'Notes de frais automatisées', ticker: '$EXPS' },
     { companyName: 'Bondline', pitch: 'Émission d’obligations PME simplifiée', ticker: '$BNDL' },
     { companyName: 'Riskward', pitch: 'Détection de fraude transactionnelle', ticker: '$RSKW' },
+    { companyName: 'Cleartab', pitch: 'Recouvrement amiable automatisé', ticker: '$CLTB' },
+    { companyName: 'Escrowly', pitch: 'Séquestre en ligne pour transactions B2B', ticker: '$ESCR' },
+    { companyName: 'Treasura', pitch: 'Placement de trésorerie court terme PME', ticker: '$TRSA' },
   ],
   deeptech: [
     { companyName: 'Solvix AI', pitch: 'Assistant R&D pharma', ticker: '$SOLVX' },
@@ -60,6 +66,10 @@ export const companyProfilesBySector: Record<Sector, CompanyProfile[]> = {
     { companyName: 'Neurograft', pitch: 'Interfaces neuronales médicales', ticker: '$NRGR' },
     { companyName: 'Alloycore', pitch: 'Alliages métalliques imprimés en 3D', ticker: '$ALCR' },
     { companyName: 'Spectrala', pitch: 'Spectrométrie portable industrielle', ticker: '$SPCT' },
+    { companyName: 'Thermeon', pitch: 'Récupération de chaleur industrielle', ticker: '$THRM' },
+    { companyName: 'Biolattice', pitch: 'Tissus biologiques imprimés pour la recherche', ticker: '$BLTC' },
+    { companyName: 'Seismara', pitch: 'Surveillance sismique des ouvrages d’art', ticker: '$SSMR' },
+    { companyName: 'Hydrogenix', pitch: 'Électrolyseurs modulaires bas coût', ticker: '$HYDX' },
   ],
   consumer: [
     { companyName: 'Verdance', pitch: 'Marque de snacks fonctionnels', ticker: '$VRDN' },
@@ -74,6 +84,10 @@ export const companyProfilesBySector: Record<Sector, CompanyProfile[]> = {
     { companyName: 'Kinfolk Goods', pitch: 'Marketplace de cadeaux personnalisés', ticker: '$KNFK' },
     { companyName: 'Driftwear', pitch: 'Mode seconde main premium', ticker: '$DRFT' },
     { companyName: 'Homebrew Club', pitch: 'Kits de brassage à domicile', ticker: '$HMBC' },
+    { companyName: 'Lumira', pitch: 'Luminaires artisanaux en série limitée', ticker: '$LMRA' },
+    { companyName: 'Sprouted', pitch: 'Abonnement potager d’intérieur', ticker: '$SPRT' },
+    { companyName: 'Tidewell', pitch: 'Produits ménagers rechargeables', ticker: '$TDWL' },
+    { companyName: 'Mellowdays', pitch: 'Boissons sans alcool pour la soirée', ticker: '$MLWD' },
   ],
   marketplace: [
     { companyName: 'NRJ Logistics', pitch: 'Tournées PME', ticker: '$NRJL' },
@@ -88,5 +102,9 @@ export const companyProfilesBySector: Record<Sector, CompanyProfile[]> = {
     { companyName: 'Fleetshare', pitch: 'Marketplace de flottes utilitaires partagées', ticker: '$FLTS' },
     { companyName: 'Wardrobe Loop', pitch: 'Marketplace de location de vêtements événementiels', ticker: '$WRDL' },
     { companyName: 'Toolbench', pitch: 'Marketplace d’outillage professionnel d’occasion', ticker: '$TLBN' },
+    { companyName: 'Cargoswap', pitch: 'Marketplace de fret retour à vide', ticker: '$CRGS' },
+    { companyName: 'Medisupply', pitch: 'Marketplace d’équipement médical reconditionné', ticker: '$MDSP' },
+    { companyName: 'Bricklot', pitch: 'Marketplace de matériaux de chantier en surplus', ticker: '$BRKL' },
+    { companyName: 'Cateringly', pitch: 'Marketplace de traiteurs événementiels', ticker: '$CTRL' },
   ],
 }

@@ -25,12 +25,21 @@ export type FounderArchetypeId =
   | 'vendeur-ne-sans-produit'
   | 'prophete-mission'
 
+/**
+ * Comportement réel du fondateur face à un choc (product-spec §3.6) — détermine si
+ * "Soutenir en urgence" aide vraiment. Jamais affiché au joueur : il ne peut que
+ * l'inférer des signaux équipe révélés.
+ */
+export type FounderResilience = 'resilient' | 'fragile'
+
 export interface FounderArchetype {
   id: FounderArchetypeId
   label: string
   description: string
   /** Inclus dans le scope de build Phase 0 (docs/PRD.md §5). */
   phase0: boolean
+  /** Réaction réelle sous pression — voir Claude/memory/decisions.md (2026-09-24). */
+  resilience: FounderResilience
 }
 
 /** product-spec §5 — 6 archétypes de LP documentés, 2-3 actifs en Phase 0. */

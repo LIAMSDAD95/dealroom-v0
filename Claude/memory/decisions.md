@@ -160,3 +160,34 @@ Contenu : chaque archétype Phase 0 a une banque de 8-10 questions écrites (que
 **Décision** : la scène de dialogue fondateur reprend la structure visuelle de la scène LP (modale 2 colonnes, sidebar + fil de chat) mais remplace `--forest` par un orange dédié pour la sidebar et les bulles du joueur.
 **Raison** : demande explicite — distinguer visuellement la scène fondateur de la scène LP, qui garde le vert (product-spec §7.10).
 **Domaine concerné** : UI (`tokens.css` gagne une variable dédiée, `FounderScene.module.css`).
+
+## [2026-09-24] Scène de crise macro (§3.6) : cadrage V0
+
+**Décision** :
+- Déclenchement **aléatoire à partir du trimestre 4 seulement** (jamais Q1-Q3), et uniquement si le joueur a au moins une ligne en portefeuille (§3.6 : « zéro exposition = pas de scène »).
+- « Soutenir en urgence » pioche dans le **capital restant** (non déployé), pas dans une réserve follow-on séparée — cohérent avec le défaut du product-spec §6 (« fondue dans le capital général »), évite d'introduire une ressource qui toucherait aussi l'écran de levée de fonds.
+- **Résolution réelle** : chaque archétype porte une résilience ; « Soutenir » aide vraiment si le fondateur est résilient, et la fiabilité de la jauge « réaction attendue » dépend du nombre de signaux équipe déjà révélés sur cette ligne (§3.6, prédictibilité proportionnelle).
+**Raison** : demande explicite de l'utilisateur, avec la maquette `vc-techwear-crisis_7.html` comme référence visuelle. Le Q4 minimum laisse le temps de constituer un portefeuille avant que la première crise tombe.
+**Domaine concerné** : Game Loop (portefeuille, déclenchement, résolution) / Signals & Content (news + réactions par archétype) / UI (`CrisisScene`).
+
+## [2026-09-24] Câblage du portefeuille et place de la crise dans le trimestre
+
+**Décision** :
+- La scène de crise s'intercale **avant** le deal flow du trimestre : `enterQuarter()` tire la crise au moment de la transition, puis affiche soit `crisis`, soit `deal-flow`. Le joueur traite le choc, puis continue vers les nouvelles opportunités.
+- Une ligne de portefeuille est créée à **chaque investissement**, quel que soit le chemin (bouton « Investir » sur la carte ou sortie de scène fondateur). `knownTeamSignals` est rempli si le joueur avait creusé **ou** mené l'entretien — les deux révèlent des signaux équipe, donc les deux fiabilisent la prédiction de crise.
+- Le coût en bande passante d'une crise est remonté à `App` (`crisisBandwidthSpent`) et entre dans la `key` de `DealFlowScreen` : sans ça, revenir de la crise au deal flow du même trimestre réutilise l'instance existante et le coût n'est jamais appliqué.
+**Raison** : le portefeuille doit survivre au changement de trimestre (le state du deal flow, lui, est volontairement réinitialisé par sa `key`), donc il vit dans `App`. Marquer l'entretien à l'ouverture de la scène et non à sa sortie évite de lire un state pas encore committé dans `handleInvest`.
+**Domaine concerné** : Game Loop (`portfolio.ts`, `crisis.ts`) / Technical (état applicatif dans `App.tsx`) / UI (`CrisisScene`, `DealFlowScreen`).
+
+## [2026-09-24] Une startup ne peut plus revenir deux fois dans un run
+
+**Décision** : `generateQuarterDeals` accepte un 3e paramètre `alreadySeen` (noms déjà croisés dans le run) et écarte ces profils en priorité. Le générateur reste stateless (ADR-002) : la mémoire est tenue par `App.tsx` dans un `useRef`. En complément, chaque banque sectorielle passe à **16 profils minimum** (17 pour saas-b2b).
+**Raison** : signalé en test — la même startup (Closeeo) revenait au Q1 puis au Q3. Mesuré avant correction : **100% des runs** avaient au moins une répétition, 12,5 doublons en moyenne. `pickManyNoRepeat` ne dédoublonnait qu'à l'intérieur d'un trimestre, sans aucune mémoire d'un trimestre à l'autre. Le plancher de 16 profils est arithmétique : un run consomme 8 × 4 = 32 tirages, et la thèse impose au moins 2 secteurs — deux banques de 16 couvrent donc exactement le run. Après correction : 0% de répétition sur les 10 paires de secteurs possibles et toutes les triplettes.
+**Domaine concerné** : Game Loop (`deal-generator.ts`) / Signals & Content (`company-names.ts`) / Technical (mémoire du run dans `App.tsx`).
+
+## [2026-09-24] Récap de portefeuille consultable à tout moment
+
+**Décision** : bouton « PORTEFEUILLE (n) » dans le header, qui ouvre un **panneau latéral** glissant depuis la droite (fermable par Échap, par la croix ou par un clic sur le fond). Affiché à partir du deal flow uniquement — pas sur la déclaration de thèse ni sur la levée de fonds, où le portefeuille est forcément vide. Contenu limité aux **faits bruts** : startup, fondateur, secteur/stade, montant investi, trimestre d'entrée, signaux équipe connus, statut actif/sorti, plus une synthèse (lignes actives, sorties, capital déployé / levé).
+**Raison** : demande utilisateur d'un accès permanent sans altérer l'expérience. Le panneau latéral a été préféré à la modale centrée (qui masque tout l'écran, donc « quitte » le deal flow) et à l'encart permanent (qui mange de la largeur dont les cartes ont besoin, et n'existerait que sur un écran). Le compteur sur le bouton donne l'information principale sans même ouvrir. Aucun score de santé ni valorisation : règle #3 du CLAUDE.md (pas de score agrégé) — et le jeu ne dispose de toute façon pas encore de mécanique d'évolution de portefeuille (§3.2 « évolutions silencieuses » reste à concevoir).
+**Conséquence technique** : `App.tsx` compose désormais l'écran courant dans une variable (`currentScreen`) au lieu d'enchaîner les `return`, pour que le panneau soit monté une seule fois au-dessus de n'importe quel écran.
+**Domaine concerné** : UI (`PortfolioPanel`, `AppHeader`) / Technical (état d'ouverture dans `App.tsx`).

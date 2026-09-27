@@ -68,3 +68,10 @@
 **Domaine concerné** : UI / Visual System
 **Symptôme** : cliquer « Creuser » sur une carte deal flow fait bien apparaître le bouton « Investir » et décrémente la bande passante, mais les tags marqués `locked` (signaux équipe/trompeurs) restent affichés comme non révélés — alors que "creuser" est censé révéler ces signaux (product-spec §3.2).
 **Contexte** : `handleDig` dans `DealFlowScreen` ne mettait à jour que `statuses` (état de la carte), jamais un état de révélation des tags — `DealCard` affichait directement `deal.tags` (donnée statique) sans tenir compte du fait que le deal avait été creusé.
+
+## [2026-09-24] Le serveur de dev redémarre tout seul en plein test
+
+**Statut** : résolu (voir learnings.md#serveur-de-dev-qui-redémarre-seul)
+**Domaine concerné** : Technical / App State (docs/architecture.md#5)
+**Symptôme** : en plein test manuel, le terminal affiche `vite.config.ts changed, restarting server...` et `changed tsconfig file detected`, le navigateur recharge, et l'état de la partie en cours est perdu.
+**Contexte** : aucun de ces fichiers n'avait été modifié — `git diff` sur `vite.config.ts` et les `tsconfig` était vide. Rend tout test de parcours long (run de 8 trimestres) peu fiable.

@@ -18,8 +18,17 @@ interface DealFlowScreenProps {
   quarter: number
   /** Capital déjà déployé sur les trimestres précédents — cumulé sur tout le run. */
   deployedCapital: number
-  /** Remonte chaque investissement pour que le cumul survive au changement de trimestre. */
-  onCapitalDeployed: (amount: number) => void
+  /**
+   * Remonte chaque investissement : le cumul de capital et la ligne de portefeuille
+   * doivent survivre au changement de trimestre (§3.6 — la crise cible le portefeuille).
+   * `signalsRevealed` dit si le joueur avait creusé ou mené l'entretien avant d'investir.
+   */
+  onCapitalDeployed: (deal: Deal, signalsRevealed: boolean) => void
+  /** Bande passante déjà dépensée en scène de crise avant d'entrer sur le deal flow (§3.6). */
+  bandwidthSpent?: number
+  /** Nombre de lignes actives — affiché sur le bouton d'accès au récap de portefeuille. */
+  portfolioCount?: number
+  onOpenPortfolio?: () => void
   /** Clôture le trimestre : nouveau deal flow, bande passante réinitialisée. */
   onAdvanceQuarter: () => void
   /** Clôture le fonds au dernier trimestre. */
@@ -38,6 +47,9 @@ export function DealFlowScreen({
   offers,
   quarter,
   deployedCapital,
+  bandwidthSpent = 0,
+  portfolioCount,
+  onOpenPortfolio,
   onCapitalDeployed,
   onAdvanceQuarter,
   onCloseFund,
@@ -48,8 +60,13 @@ export function DealFlowScreen({
   // Creuser (-1 bande passante) révèle les signaux équipe/trompeurs (product-spec §3.2) —
   // suivi séparément de `deals` (donnée statique) pour ne pas muter la source de vérité.
   const [digDealIds, setDigDealIds] = useState<Set<string>>(new Set())
-  const [bandwidth, setBandwidth] = useState(STARTING_BANDWIDTH)
+  const [bandwidth, setBandwidth] = useState(
+    () => Math.max(0, STARTING_BANDWIDTH - bandwidthSpent),
+  )
   const [pitchingDealId, setPitchingDealId] = useState<string | null>(null)
+  // Deals dont le joueur a mené l'entretien fondateur : il en connaît les signaux équipe
+  // au même titre que s'il avait creusé (§3.4), ce qui fiabilise la prédiction de crise.
+  const [interviewedDealIds, setInterviewedDealIds] = useState<Set<string>>(new Set())
 
   const committedOffers = offers.filter((o) => o.status === 'committed')
   const totalRaised = committedOffers.reduce((sum, o) => sum + (o.committedAmount ?? 0), 0)
@@ -74,13 +91,15 @@ export function DealFlowScreen({
     if (!deal) return
     // Ne jamais dépasser le capital réellement levé auprès des LPs (retour utilisateur 2026-09-19).
     if (deal.askAmount > remainingCapital) return
-    onCapitalDeployed(deal.askAmount)
+    onCapitalDeployed(deal, digDealIds.has(dealId) || interviewedDealIds.has(dealId))
     setStatuses((s) => ({ ...s, [dealId]: 'invested' }))
   }
 
   return (
     <main className={styles.screen}>
       <AppHeader
+        portfolioCount={portfolioCount}
+        onOpenPortfolio={onOpenPortfolio}
         badges={
           <div className={styles.lpBadges}>
             {committedOffers.map((offer) => (
@@ -143,6 +162,9 @@ export function DealFlowScreen({
                 onInvest={() => handleInvest(deal.id)}
                 onJoinPitch={() => {
                   if (remainingCapital <= 0) return
+                  // Marqué à l'ouverture, pas à la sortie : handleInvest est appelé depuis
+                  // la scène et lirait sinon un state pas encore à jour.
+                  setInterviewedDealIds((ids) => new Set(ids).add(deal.id))
                   setPitchingDealId(deal.id)
                 }}
               />

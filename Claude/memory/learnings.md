@@ -58,3 +58,12 @@
 **Cause racine** : `DealCard` affichait `deal.tags` directement — une donnée statique venant de `deal-flow.data.ts`, jamais mise à jour par les actions du joueur. Cliquer « Creuser » changeait bien le `status` de la carte (`pending` → `dug`) dans `DealFlowScreen`, mais rien ne reliait cette action à l'affichage des tags eux-mêmes.
 **Solution** : `DealFlowScreen` garde un `Set<string>` des ids de deals creusés (`digDealIds`), passé à `DealCard` via une prop `signalsRevealed`. `DealCard` calcule `displayedTags` en dérivant une copie de `deal.tags` avec tous les statuts forcés à `'revealed'` si `signalsRevealed` est vrai, sans jamais muter `deal.tags` lui-même.
 **À retenir pour la suite** : une donnée de contenu statique (deal, archétype, offre LP) ne doit jamais être affichée telle quelle quand elle a des champs qui doivent changer selon l'action du joueur — toujours dériver un état d'affichage séparé à partir d'un state géré par l'écran parent, jamais muter ou étendre silencieusement la donnée source.
+
+## [2026-09-24] Serveur de dev qui redémarre seul (lié à blockers.md#le-serveur-de-dev-redémarre-tout-seul-en-plein-test)
+
+**Cause racine** : le projet vit dans un dossier synchronisé par iCloud. La synchronisation remet régulièrement à jour la **date de modification** des fichiers sans en changer le contenu. Vite redémarre dès que le fichier touché est `configFile` / `configFileDependencies` / un fichier d'env (`handleHMRUpdate`), et il se fie à cet événement, pas au contenu. Vérifié en reproduisant le bug avec un simple `touch vite.config.ts` : redémarrage immédiat, contenu inchangé.
+**Solution** : dans `vite.config.ts`, `server.watch.ignored` liste les fichiers de config **par chemin absolu** (via `fileURLToPath`), plus `usePolling: true` avec `node_modules` exclu.
+**À retenir pour la suite** :
+- Ne **jamais** mettre un motif large type `'**/tsconfig*.json'` dans `watch.ignored` : ça neutralise le watcher entier et casse le HMR silencieusement. Cibler par chemin absolu.
+- Sur ce dossier iCloud, macOS n'émet pas d'événements de fichier fiables : `usePolling` est nécessaire pour que le HMR parte. Exclure `node_modules` sinon le démarrage passe de ~200ms à ~50s.
+- **Piège de test** : Vite ne loggue `hmr update` que pour les modules chargés par un navigateur **connecté**. Sans onglet ouvert, l'absence de log ne prouve pas que le HMR est cassé — j'ai failli conclure à tort à une régression.

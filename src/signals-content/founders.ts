@@ -11,24 +11,28 @@ export const founderArchetypes: FounderArchetype[] = [
     label: 'Wunderkind du pedigree',
     description: 'Charisme + pedigree masquant un manque de conviction profonde.',
     phase0: true,
+    resilience: 'fragile',
   },
   {
     id: 'bricoleur-obsessionnel',
     label: 'Bricoleur obsessionnel',
     description: 'Présentation maladroite, précision chirurgicale une fois creusé.',
     phase0: true,
+    resilience: 'resilient',
   },
   {
     id: 'surfeur-hype',
     label: 'Surfeur de hype',
     description: 'Croissance payée par ads, jamais de rétention prouvée.',
     phase0: true,
+    resilience: 'fragile',
   },
   {
     id: 'veterane-secteur',
     label: 'Vétérante du secteur',
     description: 'Sobre, marché de niche à TAM caché.',
     phase0: true,
+    resilience: 'resilient',
   },
   {
     id: 'duo-fracture',
@@ -36,6 +40,7 @@ export const founderArchetypes: FounderArchetype[] = [
     description:
       'Tout semble parfait, la fracture n’apparaît qu’à une question de friction précise.',
     phase0: true,
+    resilience: 'fragile',
   },
   {
     id: 'rescape',
@@ -43,6 +48,7 @@ export const founderArchetypes: FounderArchetype[] = [
     description:
       'Second-time founder ; le twist se lit dans la réaction à une situation actuelle similaire à l’échec passé.',
     phase0: false,
+    resilience: 'resilient',
   },
   {
     id: 'scientifique-transfuge',
@@ -50,12 +56,14 @@ export const founderArchetypes: FounderArchetype[] = [
     description:
       'Technique irréprochable, flou business ; signal clé = lucidité vs déni face à ce flou.',
     phase0: false,
+    resilience: 'resilient',
   },
   {
     id: 'vendeur-ne-sans-produit',
     label: 'Vendeur-né sans produit',
     description: 'Aplomb total, suspect par absence de doute légitime.',
     phase0: false,
+    resilience: 'fragile',
   },
   {
     id: 'prophete-mission',
@@ -63,5 +71,6 @@ export const founderArchetypes: FounderArchetype[] = [
     description:
       'Conviction personnelle confondue avec conviction business ; signal clé = alignement mission/modèle économique.',
     phase0: false,
+    resilience: 'fragile',
   },
 ]
