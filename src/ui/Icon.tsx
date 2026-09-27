@@ -3,7 +3,16 @@
 
 import type { ReactNode } from 'react'
 
-export type IconName = 'bar-chart' | 'zap' | 'users' | 'network' | 'alert-circle' | 'lock' | 'check'
+export type IconName =
+  | 'bar-chart'
+  | 'zap'
+  | 'users'
+  | 'network'
+  | 'alert-circle'
+  | 'lock'
+  | 'check'
+  | 'activity'
+  | 'layers'
 
 interface IconProps {
   name: IconName
@@ -56,6 +65,16 @@ function paths(name: IconName): ReactNode {
       )
     case 'check':
       return <path d="M20 6 9 17l-5-5" />
+    // Évolutions silencieuses et follow-on — vc-techwear-portfolio_3.html
+    case 'activity':
+      return <path d="M22 12h-4l-3 9L9 3l-3 9H2" />
+    case 'layers':
+      return (
+        <>
+          <path d="m12 2 9 5-9 5-9-5 9-5Z" />
+          <path d="m3 12 9 5 9-5M3 17l9 5 9-5" />
+        </>
+      )
   }
 }
 

@@ -14,8 +14,14 @@ export interface PitchSessionState {
   confidence: number
 }
 
-export function createPitchSession(offerId: string): PitchSessionState {
-  return { offerId, angle: null, answeredCount: 0, confidence: STARTING_CONFIDENCE }
+/** `confidenceBonus` : perk « Premier fonds bouclé » (§3.7), 0 au Fonds I. */
+export function createPitchSession(offerId: string, confidenceBonus = 0): PitchSessionState {
+  return {
+    offerId,
+    angle: null,
+    answeredCount: 0,
+    confidence: Math.min(100, STARTING_CONFIDENCE + confidenceBonus),
+  }
 }
 
 /** product-spec §3.1.3 — ton qui matche l'angle → bonus ; contradiction → pénalité plus lourde. */
@@ -25,6 +31,8 @@ const COHERENCE_PENALTY = -10
 export interface AnswerResolution {
   nextConfidence: number
   coherenceNote: string | null
+  /** 'clash' = le ton contredit l'angle — compté pour le rapport LP à la clôture (§3.8). */
+  coherence: 'match' | 'clash' | null
 }
 
 export function resolveAnswer(
@@ -34,19 +42,22 @@ export function resolveAnswer(
 ): AnswerResolution {
   let delta = option.confidenceDelta
   let coherenceNote: string | null = null
+  let coherence: AnswerResolution['coherence'] = null
 
   if (angle && option.tone && option.tone !== 'aucun') {
     if (toneMatchesAngle(option.tone, angle)) {
       delta += COHERENCE_BONUS
       coherenceNote = 'Cohérence avec votre angle (+)'
+      coherence = 'match'
     } else {
       delta += COHERENCE_PENALTY
       coherenceNote = 'Incohérence avec votre angle (–)'
+      coherence = 'clash'
     }
   }
 
   const nextConfidence = Math.max(0, Math.min(100, currentConfidence + delta))
-  return { nextConfidence, coherenceNote }
+  return { nextConfidence, coherenceNote, coherence }
 }
 
 function toneMatchesAngle(tone: ResponseTone, angle: PitchAngle): boolean {

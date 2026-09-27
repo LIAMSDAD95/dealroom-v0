@@ -1,0 +1,190 @@
+/* Carte follow-on — product-spec §3.5, maquette vc-techwear-portfolio_3.html.
+   Même grammaire que DealCard (§7.3) : gris, bordure noire, ombre franche. */
+
+.card {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+
+  padding: 1.25rem;
+  border-radius: 16px;
+  border: var(--border-width) solid var(--border-color);
+  box-shadow: var(--shadow-offset-card) var(--shadow-offset-card) 0 var(--shadow-color-card);
+  background: var(--stone);
+  color: var(--ink);
+}
+
+.ticker {
+  font-family: var(--font-pixel);
+  font-size: 0.65rem;
+}
+
+.name {
+  font-family: var(--font-display);
+  font-weight: 900;
+  font-size: 1.4rem;
+  text-transform: uppercase;
+  line-height: 0.95;
+  margin: 0;
+}
+
+.sub {
+  font-size: 0.65rem;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  font-weight: 600;
+  opacity: 0.75;
+  margin: 0;
+}
+
+.specRow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.6rem 1rem;
+  padding: 0.6rem 0;
+  border-top: 1.5px solid currentColor;
+  border-bottom: 1.5px solid currentColor;
+}
+
+.spec {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+}
+
+.specLabel {
+  font-size: 0.55rem;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  opacity: 0.65;
+}
+
+.specValue {
+  font-size: 0.8rem;
+  font-weight: 700;
+}
+
+.specValue[data-warn] {
+  color: #8a1f1f;
+}
+
+/* Tags : mêmes couleurs de famille que DealCard (§3.3) */
+.tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+}
+
+.tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  font-size: 0.62rem;
+  text-transform: uppercase;
+  font-weight: 700;
+  padding: 0.25rem 0.55rem;
+  border-radius: 6px;
+  border: 1.5px solid var(--border-color);
+}
+
+.tag:not([data-family]) {
+  border-style: dashed;
+  opacity: 0.6;
+}
+
+.tag[data-family='structurel'] {
+  background: var(--cream);
+}
+
+.tag[data-family='equipe'] {
+  background: var(--signal-equipe);
+  color: var(--cream);
+}
+
+.tag[data-family='trompeur'] {
+  background: var(--signal-trompeur);
+}
+
+.note {
+  font-size: 0.72rem;
+  line-height: 1.5;
+  opacity: 0.85;
+  margin: 0;
+}
+
+.actions {
+  margin-top: auto;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.declineButton,
+.reviewButton,
+.followButton {
+  flex: 1 1 auto;
+  min-width: 100px;
+
+  font-family: var(--font-mono);
+  font-weight: 700;
+  font-size: 0.62rem;
+  text-transform: uppercase;
+  letter-spacing: 0.01em;
+
+  padding: 0.65rem 0.5rem;
+  border-radius: 10px;
+  border: var(--border-width) solid var(--border-color);
+  box-shadow: var(--shadow-offset-btn) var(--shadow-offset-btn) 0 var(--shadow-color-btn);
+  background: var(--stone);
+  color: var(--ink);
+  cursor: pointer;
+  transition:
+    transform 0.08s ease,
+    box-shadow 0.08s ease;
+}
+
+.declineButton {
+  opacity: 0.7;
+}
+
+.followButton {
+  background: var(--mustard);
+}
+
+.declineButton:hover:not(:disabled),
+.reviewButton:hover:not(:disabled),
+.followButton:hover:not(:disabled) {
+  transform: translate(2px, 2px);
+  box-shadow: 2px 2px 0 var(--shadow-color-btn);
+}
+
+.declineButton:disabled,
+.reviewButton:disabled,
+.followButton:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.outcome {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  margin: 0;
+
+  font-size: 0.68rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  padding: 0.7rem;
+  border-radius: 10px;
+  border: var(--border-width) solid var(--border-color);
+}
+
+.outcome[data-kind='follow'] {
+  border-color: #3a8a5c;
+  color: #1f5c38;
+}
+
+.outcome[data-kind='decline'] {
+  opacity: 0.55;
+}

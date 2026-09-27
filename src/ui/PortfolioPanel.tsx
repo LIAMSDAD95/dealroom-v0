@@ -1,5 +1,6 @@
 import { useEffect } from 'react'
 import type { PortfolioLine } from '../game-loop/portfolio'
+import { lineMultiple, lineValue } from '../game-loop/portfolio'
 import { Icon } from './Icon'
 import styles from './PortfolioPanel.module.css'
 
@@ -9,6 +10,8 @@ interface PortfolioPanelProps {
   totalRaised: number
   deployedCapital: number
   onClose: () => void
+  /** Numéro du fonds en chiffres romains. */
+  fundLabel: string
 }
 
 function formatCapital(amount: number): string {
@@ -31,6 +34,7 @@ export function PortfolioPanel({
   totalRaised,
   deployedCapital,
   onClose,
+  fundLabel,
 }: PortfolioPanelProps) {
   // Échap ferme le panneau — il se consulte en un coup d'œil et doit se refermer aussi vite.
   useEffect(() => {
@@ -60,7 +64,7 @@ export function PortfolioPanel({
       >
         <header className={styles.head}>
           <div>
-            <p className={styles.eyebrow}>FONDS I</p>
+            <p className={styles.eyebrow}>FONDS {fundLabel}</p>
             <h2 className={styles.title}>PORTEFEUILLE</h2>
           </div>
           <button type="button" className={styles.closeButton} onClick={onClose} aria-label="Fermer">
@@ -101,7 +105,11 @@ export function PortfolioPanel({
               <article key={line.id} className={styles.line} data-exited={!line.isActive || undefined}>
                 <div className={styles.lineHead}>
                   <p className={styles.company}>{line.deal.companyName}</p>
-                  {!line.isActive && <span className={styles.exitTag}>SORTIE</span>}
+                  {!line.isActive && (
+                    <span className={styles.exitTag}>
+                      {line.exitKind === 'shutdown' ? 'FERMÉE' : 'SORTIE'}
+                    </span>
+                  )}
                 </div>
                 <p className={styles.founder}>{line.deal.founderName}</p>
                 <p className={styles.meta}>
@@ -112,6 +120,15 @@ export function PortfolioPanel({
                 <div className={styles.amountRow}>
                   <span className={styles.amountLabel}>Investi</span>
                   <span className={styles.amountValue}>{formatCapital(line.investedAmount)}</span>
+                </div>
+                <div className={styles.amountRow}>
+                  <span className={styles.amountLabel}>
+                    {line.isActive ? 'Valeur estimée' : 'Récupéré'}
+                  </span>
+                  <span className={styles.amountValue}>
+                    {formatCapital(lineValue(line))} ·{' '}
+                    {lineMultiple(line).toLocaleString('fr-FR', { maximumFractionDigits: 1 })}×
+                  </span>
                 </div>
 
                 <div className={styles.signals}>

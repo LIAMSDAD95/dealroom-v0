@@ -6,3 +6,9 @@ export const FUND_I_TARGET = 5_000_000
 
 // product-spec §2 — run de 8 trimestres, structure à plat (pas d'actes en Phase 0).
 export const QUARTERS_PER_RUN = 8
+
+/** Numéro de fonds en chiffres romains (« Fonds II ») — méta-progression §3.7. */
+export function formatFundNumber(n: number): string {
+  const numerals = ['I', 'II', 'III', 'IV', 'V', 'VI', 'VII', 'VIII', 'IX', 'X']
+  return numerals[n - 1] ?? String(n)
+}

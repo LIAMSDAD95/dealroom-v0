@@ -1,8 +1,9 @@
 import { useState } from 'react'
 import { FUND_I_TARGET } from '../game-loop/fund'
-import type { LpOffer } from '../game-loop/lp-pool'
+import type { LpOffer, LpPitchRecord } from '../game-loop/lp-pool'
 import type { Thesis } from '../game-loop/thesis'
 import { lpArchetypes } from '../signals-content/lps'
+import type { PitchAngle } from '../signals-content/types'
 import { AppHeader } from './AppHeader'
 import { FundProgressPanel } from './FundProgressPanel'
 import { LpCard } from './LpCard'
@@ -14,8 +15,14 @@ import { ThesisSummaryPanel } from './ThesisSummaryPanel'
 interface FundraisingScreenProps {
   thesis: Thesis
   offers: LpOffer[]
-  onOfferCommitted: (offerId: string, amount: number) => void
+  onOfferCommitted: (offerId: string, amount: number, record: LpPitchRecord) => void
   onProceedToQuarterOne: () => void
+  /** Angles de pitch ouverts par la réputation (§3.7). */
+  unlockedAngles: PitchAngle[]
+  /** Perk « Premier fonds bouclé ». */
+  confidenceBonus: number
+  /** Numéro du fonds levé (« Fonds II »…). */
+  fundLabel: string
 }
 
 export function FundraisingScreen({
@@ -23,6 +30,9 @@ export function FundraisingScreen({
   offers,
   onOfferCommitted,
   onProceedToQuarterOne,
+  unlockedAngles,
+  confidenceBonus,
+  fundLabel,
 }: FundraisingScreenProps) {
   const [pitchingOfferId, setPitchingOfferId] = useState<string | null>(null)
   const pitchingOffer = offers.find((o) => o.id === pitchingOfferId) ?? null
@@ -38,7 +48,7 @@ export function FundraisingScreen({
       <AppHeader />
 
       <div className={styles.content}>
-        <p className={styles.eyebrow}>FONDATION DU FONDS</p>
+        <p className={styles.eyebrow}>FONDATION DU FONDS {fundLabel}</p>
         <h1 className={styles.title}>LEVÉE DE FONDS</h1>
 
         <div className={styles.sectionSpacer}>
@@ -89,8 +99,10 @@ export function FundraisingScreen({
           offer={pitchingOffer}
           archetype={pitchingArchetype}
           onClose={() => setPitchingOfferId(null)}
-          onComplete={(offerId, amount) => {
-            onOfferCommitted(offerId, amount)
+          unlockedAngles={unlockedAngles}
+          confidenceBonus={confidenceBonus}
+          onComplete={(offerId, amount, record) => {
+            onOfferCommitted(offerId, amount, record)
             setPitchingOfferId(null)
           }}
         />

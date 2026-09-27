@@ -6,10 +6,12 @@ import { Chip } from './Chip'
 import styles from './ThesisDeclaration.module.css'
 
 interface ThesisDeclarationProps {
+  /** Numéro du fonds en chiffres romains (« I », « II »…). */
+  fundLabel: string
   onConfirm: (thesis: Thesis) => void
 }
 
-export function ThesisDeclaration({ onConfirm }: ThesisDeclarationProps) {
+export function ThesisDeclaration({ fundLabel, onConfirm }: ThesisDeclarationProps) {
   const [sectors, setSectors] = useState<Sector[]>([])
   const [stage, setStage] = useState<Stage | null>(null)
   const [zone, setZone] = useState<Zone | null>(null)
@@ -40,7 +42,7 @@ export function ThesisDeclaration({ onConfirm }: ThesisDeclarationProps) {
       <AppHeader />
 
       <div className={styles.content}>
-        <p className={styles.pixelLabel}>FONDS I · AVANT LE PREMIER TRIMESTRE</p>
+        <p className={styles.pixelLabel}>FONDS {fundLabel} · AVANT LE PREMIER TRIMESTRE</p>
         <h1 className={styles.title}>DÉCLAREZ VOTRE THÈSE</h1>
         <p className={styles.subtitle}>
           Un engagement pour tout le run. Dévier de votre thèse coûte de la confiance de vos LPs.

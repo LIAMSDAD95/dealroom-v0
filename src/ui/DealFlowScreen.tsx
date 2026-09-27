@@ -24,7 +24,7 @@ interface DealFlowScreenProps {
    * `signalsRevealed` dit si le joueur avait creusé ou mené l'entretien avant d'investir.
    */
   onCapitalDeployed: (deal: Deal, signalsRevealed: boolean) => void
-  /** Bande passante déjà dépensée en scène de crise avant d'entrer sur le deal flow (§3.6). */
+  /** Bande passante déjà dépensée avant d'entrer sur le deal flow (« Revoir DD », crise §3.6). */
   bandwidthSpent?: number
   /** Nombre de lignes actives — affiché sur le bouton d'accès au récap de portefeuille. */
   portfolioCount?: number
@@ -33,6 +33,10 @@ interface DealFlowScreenProps {
   onAdvanceQuarter: () => void
   /** Clôture le fonds au dernier trimestre. */
   onCloseFund: () => void
+  /** Pitchs d'ouverture fondateur déjà entendus dans le run (retour utilisateur 2026-09-27). */
+  heardOpenings: Set<string>
+  /** Perk « Instinct de chasseur » (§3.7). */
+  freeTeamSignal?: boolean
 }
 
 function formatCapital(amount: number): string {
@@ -53,6 +57,8 @@ export function DealFlowScreen({
   onCapitalDeployed,
   onAdvanceQuarter,
   onCloseFund,
+  heardOpenings,
+  freeTeamSignal = false,
 }: DealFlowScreenProps) {
   const [statuses, setStatuses] = useState<Record<string, DealCardStatus>>(() =>
     Object.fromEntries(deals.map((d) => [d.id, 'pending'])),
@@ -156,6 +162,7 @@ export function DealFlowScreen({
                 deal={deal}
                 status={statuses[deal.id]}
                 signalsRevealed={digDealIds.has(deal.id)}
+                freeTeamSignal={freeTeamSignal}
                 remainingCapital={remainingCapital}
                 onDig={() => handleDig(deal.id)}
                 onPass={() => handlePass(deal.id)}
@@ -188,6 +195,7 @@ export function DealFlowScreen({
           key={pitchingDeal.id}
           deal={pitchingDeal}
           remainingCapital={remainingCapital}
+          heardOpenings={heardOpenings}
           onClose={() => setPitchingDealId(null)}
           onInvest={(dealId) => {
             handleInvest(dealId)

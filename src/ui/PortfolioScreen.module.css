@@ -1,0 +1,251 @@
+/* Rapport de portefeuille — maquette vc-techwear-portfolio_3.html.
+   Panneau clair pour le bilan chiffré, panneau sourd pour les évolutions (informatif),
+   cartes grises pour les follow-on (décisions). */
+
+.screen {
+  min-height: 100vh;
+  color: var(--cream);
+}
+
+.content {
+  max-width: 1160px;
+  margin: 0 auto;
+  padding: 1rem 1.5rem 5.5rem;
+}
+
+/* --- Header (même gabarit que DealFlowScreen) --- */
+
+.lpBadges {
+  display: flex;
+  gap: 0.6rem;
+  margin-left: 1.5rem;
+}
+
+.resource {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+}
+
+.resourceLabel {
+  font-family: var(--font-pixel);
+  font-size: 0.5rem;
+  color: #8a8574;
+}
+
+.resourceValue {
+  font-family: var(--font-display);
+  font-weight: 800;
+  font-size: 1rem;
+}
+
+.resourceTotal {
+  opacity: 0.55;
+  font-weight: 700;
+}
+
+.bandwidthDots {
+  display: flex;
+  gap: 0.4rem;
+}
+
+.dot {
+  width: 14px;
+  height: 14px;
+  border-radius: 3px;
+  border: 1.5px solid var(--border-color);
+  background: transparent;
+}
+
+.dot[data-filled='true'] {
+  background: var(--mustard);
+}
+
+/* --- Titre --- */
+
+.eyebrow {
+  font-size: 0.625rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: #7a776e;
+  margin: 0 0 0.5rem;
+}
+
+.title {
+  font-family: var(--font-display);
+  font-weight: 900;
+  text-transform: uppercase;
+  font-size: 2.5rem;
+  line-height: 0.95;
+  margin: 0 0 0.5rem;
+}
+
+.subtitle {
+  font-family: var(--font-mono);
+  color: var(--stone);
+  margin: 0;
+}
+
+.section {
+  margin-top: 2.25rem;
+}
+
+/* --- Bilan : panneau clair contrasté --- */
+
+.statsPanel {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  background: var(--cream);
+  color: var(--ink);
+  border-radius: 16px;
+  overflow: hidden;
+  border: var(--border-width) solid var(--border-color);
+  box-shadow: var(--shadow-offset-card) var(--shadow-offset-card) 0 var(--shadow-color-card);
+}
+
+.stat {
+  display: flex;
+  flex-direction: column;
+  gap: 0.55rem;
+  padding: 1.1rem 1.25rem;
+  border-left: 1px solid #dcd6c8;
+}
+
+.stat:first-child {
+  border-left: none;
+}
+
+.statLabel {
+  font-size: 0.65rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: #8a8574;
+  font-weight: 600;
+}
+
+.statValue {
+  font-family: var(--font-display);
+  font-weight: 800;
+  font-size: 1.9rem;
+}
+
+.statUnit {
+  font-size: 1rem;
+  opacity: 0.6;
+}
+
+/* --- Évolutions : panneau sourd, non actionnable --- */
+
+.evoPanel {
+  background: #2c2c29;
+  border: 2px solid #3a3a38;
+  border-radius: 16px;
+  overflow: hidden;
+}
+
+.evoRow {
+  display: flex;
+  align-items: center;
+  gap: 0.9rem;
+  padding: 0.8rem 1.1rem;
+  border-bottom: 1px dashed #3a3a38;
+}
+
+.evoRow:last-child {
+  border-bottom: none;
+}
+
+.evoTicker {
+  font-size: 0.75rem;
+  color: #8a8574;
+  width: 90px;
+  flex-shrink: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.evoName {
+  font-family: var(--font-display);
+  font-weight: 800;
+  font-size: 1.05rem;
+  text-transform: uppercase;
+  width: 150px;
+  flex-shrink: 0;
+}
+
+.evoNote {
+  font-size: 0.82rem;
+  color: #b5b2a8;
+  flex: 1;
+}
+
+.delta {
+  font-size: 0.72rem;
+  font-weight: 700;
+  padding: 0.3rem 0.7rem;
+  border-radius: 20px;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.delta[data-direction='up'] {
+  background: rgba(70, 94, 73, 0.35);
+  color: #8fbf95;
+}
+
+.delta[data-direction='down'] {
+  background: rgba(226, 105, 75, 0.2);
+  color: var(--coral);
+}
+
+.delta[data-direction='flat'] {
+  background: rgba(255, 255, 255, 0.06);
+  color: #8a8574;
+}
+
+.delta[data-direction='shutdown'] {
+  background: rgba(192, 57, 43, 0.28);
+  color: #e57c6b;
+}
+
+/* --- Follow-on --- */
+
+.foGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+  align-items: stretch;
+  gap: 0.9rem;
+}
+
+/* Même gabarit que le CTA de clôture de trimestre du deal flow (§7.4) */
+.continueButton {
+  font-family: var(--font-mono);
+  font-weight: 700;
+  font-size: 0.9rem;
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+
+  width: 100%;
+  padding: 1rem;
+  margin-top: 2.25rem;
+  border-radius: 10px;
+  border: var(--border-width) solid var(--border-color);
+  box-shadow: var(--shadow-offset-btn) var(--shadow-offset-btn) 0 var(--shadow-color-btn);
+
+  background: var(--mustard);
+  color: var(--ink);
+  cursor: pointer;
+  transition:
+    transform 0.08s ease,
+    box-shadow 0.08s ease;
+}
+
+.continueButton:hover:not(:disabled) {
+  transform: translate(2px, 2px);
+  box-shadow: 2px 2px 0 var(--shadow-color-btn);
+}
+
+.continueButton:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}

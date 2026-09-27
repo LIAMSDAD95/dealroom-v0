@@ -26,7 +26,9 @@ export const fundIOffers: LpOffer[] = [
     capitalMin: 500_000,
     capitalMax: 1_200_000,
     status: 'available',
-    constraints: [{ kind: 'dure', label: 'Exige un rythme de déploiement rapide' }],
+    constraints: [
+      { kind: 'dure', label: 'Exige un rythme de déploiement rapide', engagementId: 'fast-deployment' },
+    ],
   },
   {
     id: 'fund-i-family-office-r',
@@ -35,7 +37,9 @@ export const fundIOffers: LpOffer[] = [
     capitalMin: 300_000,
     capitalMax: 800_000,
     status: 'available',
-    constraints: [{ kind: 'dure', label: 'Exige un accès en co-invest privilégié' }],
+    constraints: [
+      { kind: 'dure', label: 'Exige un accès en co-invest privilégié', engagementId: 'co-invest' },
+    ],
   },
   {
     id: 'fund-i-fonds-pension-b',
@@ -44,7 +48,13 @@ export const fundIOffers: LpOffer[] = [
     capitalMin: 1_500_000,
     capitalMax: 3_000_000,
     status: 'available',
-    constraints: [{ kind: 'dure', label: 'Limite stricte : max 25% en deals haute variance' }],
+    constraints: [
+      {
+        kind: 'dure',
+        label: 'Limite stricte : max 25% en deals haute variance',
+        engagementId: 'risk-limit',
+      },
+    ],
   },
   {
     id: 'fund-i-corporate-cvc',

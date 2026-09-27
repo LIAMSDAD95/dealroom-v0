@@ -61,5 +61,18 @@ export interface LpArchetype {
 /** product-spec §3.1 — angle choisi par le joueur en scène de pitch LP. */
 export type PitchAngle = 'conviction' | 'discipline' | 'reseau' | 'track-record'
 
+/**
+ * Engagements pris auprès des LPs (réponses de pitch §3.1.3, contraintes dures de carte).
+ * L'identifiant permet à Game Loop de vérifier à la clôture s'ils ont été tenus (§3.8) ;
+ * le libellé affiché reste dans le contenu.
+ */
+export type EngagementId =
+  | 'risk-limit'
+  | 'fast-deployment'
+  | 'founder-availability'
+  | 'co-invest'
+  | 'transparency'
+  | 'risk-reporting'
+
 /** product-spec §3.1 — ton d'une réponse, comparé à l'angle déclaré pour la cohérence. */
 export type ResponseTone = 'discipline' | 'conviction' | 'reseau' | 'aucun'

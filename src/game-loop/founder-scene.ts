@@ -44,18 +44,29 @@ export function drawSceneQuestions(archetypeId: FounderArchetypeId): FounderQues
   return shuffled.slice(0, QUESTIONS_OFFERED)
 }
 
+export interface OpeningPitch {
+  /** Texte brut de la banque, avant substitution — sert de clé pour la mémoire du run. */
+  template: string
+  text: string
+}
+
 /**
  * Tire le pitch d'ouverture du fondateur, avec le nom de la startup substitué.
- * Retourne null si l'archétype n'a pas encore de contenu écrit (hors Phase 0).
+ * `alreadyHeard` porte les pitchs déjà entendus dans le run : ils sont écartés tant que
+ * la banque de l'archétype n'est pas épuisée (même principe que les noms de startup,
+ * decisions.md 2026-09-24). Retourne null si l'archétype n'a pas encore de contenu écrit.
  */
 export function drawOpeningPitch(
   archetypeId: FounderArchetypeId,
   companyName: string,
-): string | null {
+  alreadyHeard: ReadonlySet<string> = new Set(),
+): OpeningPitch | null {
   const pitches = founderOpeningPitchesByArchetype[archetypeId] ?? []
   if (pitches.length === 0) return null
-  const picked = pitches[Math.floor(Math.random() * pitches.length)]
-  return picked.replaceAll('{company}', companyName)
+  const fresh = pitches.filter((p) => !alreadyHeard.has(p))
+  const pool = fresh.length > 0 ? fresh : pitches
+  const template = pool[Math.floor(Math.random() * pool.length)]
+  return { template, text: template.replaceAll('{company}', companyName) }
 }
 
 /** Une question est posable si l'attention restante couvre son coût (§3.4). */

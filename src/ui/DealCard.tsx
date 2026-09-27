@@ -17,6 +17,8 @@ interface DealCardProps {
   onPass: () => void
   onInvest: () => void
   onJoinPitch: () => void
+  /** Perk « Instinct de chasseur » (§3.7) : le premier signal équipe est visible d'office. */
+  freeTeamSignal?: boolean
 }
 
 function formatCapital(amount: number): string {
@@ -32,11 +34,20 @@ function isTagRevealed(tag: DealTag, signalsRevealed: boolean): boolean {
   return tag.family === 'structurel' || signalsRevealed
 }
 
-function DealTags({ tags, signalsRevealed }: { tags: DealTag[]; signalsRevealed: boolean }) {
+function DealTags({
+  tags,
+  signalsRevealed,
+  freeTeamSignal = false,
+}: {
+  tags: DealTag[]
+  signalsRevealed: boolean
+  freeTeamSignal?: boolean
+}) {
+  const freeTag = freeTeamSignal ? tags.find((t) => t.family === 'equipe') : undefined
   return (
     <div className={styles.tags}>
       {tags.map((tag) => {
-        const revealed = isTagRevealed(tag, signalsRevealed)
+        const revealed = isTagRevealed(tag, signalsRevealed) || tag === freeTag
         return (
           <span
             key={tag.label}
@@ -62,6 +73,7 @@ export function DealCard({
   onPass,
   onInvest,
   onJoinPitch,
+  freeTeamSignal = false,
 }: DealCardProps) {
   const [secondsLeft, setSecondsLeft] = useState(DEAL_CARD_TIMER_SECONDS)
   const onPassRef = useRef(onPass)
@@ -125,7 +137,7 @@ export function DealCard({
           </div>
         </div>
 
-        <DealTags tags={deal.tags} signalsRevealed={false} />
+        <DealTags tags={deal.tags} signalsRevealed={false} freeTeamSignal={freeTeamSignal} />
 
         {isInvested ? (
           <button type="button" className={styles.investedButton} disabled>
@@ -181,7 +193,11 @@ export function DealCard({
       <p className={styles.subtitle}>{deal.pitch}</p>
       <p className={styles.askAmount}>Recherche {formatCapital(ticket)}</p>
 
-      <DealTags tags={deal.tags} signalsRevealed={signalsRevealed} />
+      <DealTags
+        tags={deal.tags}
+        signalsRevealed={signalsRevealed}
+        freeTeamSignal={freeTeamSignal}
+      />
 
       <div className={styles.actions}>
         {isPassed ? (

@@ -24,30 +24,41 @@ export interface FounderQuestion {
 
 /**
  * Pitch d'ouverture prononcé par le fondateur à l'arrivée du joueur dans la scène.
- * 2-3 variantes par archétype, tirées au hasard : le ton reflète l'archétype (le
- * Wunderkind vend du rêve, le Bricoleur donne des chiffres bruts). `{company}` est
+ * 4 variantes par archétype, tirées sans répétition sur le run (retour utilisateur
+ * 2026-09-27) : le ton reflète l'archétype (le Wunderkind vend du rêve, le Bricoleur
+ * donne des chiffres bruts). `{company}` est
  * remplacé par le nom de la startup à l'affichage.
  */
 export const founderOpeningPitchesByArchetype: Record<FounderArchetypeId, string[]> = {
   'wunderkind-pedigree': [
     '{company}, c’est la solution que tout le monde attend sur ce marché. On a l’équipe, on a la techno, et franchement le timing est parfait. Je ne vois pas qui peut nous arrêter.',
     'Merci de me recevoir. {company} attaque un marché énorme avec une approche que personne n’a osé tenter. J’ai quitté un poste confortable pour ça — c’est dire si j’y crois.',
+    'On m’a proposé de rejoindre trois scale-ups l’an dernier. J’ai dit non à toutes pour lancer {company}. Quand on voit une opportunité pareille, on ne la laisse pas passer.',
+    'Je vais vous épargner les slides. {company} va redéfinir la catégorie, et les meilleurs profils du marché nous rejoignent déjà. La seule question, c’est si vous voulez en être.',
   ],
   'bricoleur-obsessionnel': [
     'Bon. {company}. J’ai quarante clients, ils paient tous, et je peux vous dire pour chacun ce qui les empêcherait de renouveler. Je n’ai pas de slides, mais j’ai des chiffres.',
     'Je vais être direct : {company} résout un problème que j’ai vu de mes yeux pendant six ans. Ce n’est pas un marché sexy. C’est un marché qui paie.',
+    'Désolé pour le retard, j’étais au téléphone avec un client qui avait un bug. {company} en est là : petit, mais chaque client compte et je les connais tous.',
+    'Je ne suis pas très bon pour pitcher. Ce que je peux vous dire, c’est que {company} n’a perdu que deux clients cette année, et je sais exactement pourquoi.',
   ],
   'surfeur-hype': [
     '{company} fait x3 tous les trimestres depuis un an. Le marché bascule, on est au bon endroit au bon moment, et on veut accélérer maintenant avant que la fenêtre se referme.',
     'On a construit quelque chose que les gens partagent spontanément. {company}, c’est 40 000 utilisateurs en huit mois sans budget sales. Imaginez avec des moyens.',
+    'Vous avez sûrement vu passer {company} sur vos fils d’actu cette semaine. C’est le moment : tout le monde en parle, et on veut transformer cette vague en leadership.',
+    'Nos chiffres de croissance parlent d’eux-mêmes. {company} est la marque dont tout le monde parle, et on lève pour mettre de l’huile sur le feu.',
   ],
   'veterane-secteur': [
     'Quinze ans que je travaille dans ce secteur. {company}, c’est ce que j’aurais voulu avoir quand j’étais de l’autre côté. Je ne vais pas vous vendre un TAM à dix milliards.',
     '{company} est rentable sur son périmètre actuel. Je viens vous voir pour aller plus vite, pas parce que j’ai besoin d’argent pour survivre.',
+    'Je connais personnellement la moitié des acheteurs de ce marché. {company} ne fait pas de bruit, mais nos clients ne partent pas.',
+    'Je n’ai jamais levé d’argent. {company} a grandi sur ses revenus. Si je viens vous voir aujourd’hui, c’est parce qu’une fenêtre s’ouvre sur un segment voisin.',
   ],
   'duo-fracture': [
     '[Les deux fondateurs entrent ensemble.] {company}, c’est notre projet commun depuis quatre ans. On se complète bien — produit et commercial. [Le second sourit sans parler.]',
     'On est deux sur {company}, et c’est notre force. [Le premier fondateur prend la parole et la garde.] On a une répartition très claire des rôles.',
+    '[Un seul des deux fondateurs est présent.] Mon associé est retenu, mais on est parfaitement alignés sur {company}. Je peux répondre pour nous deux.',
+    '[Les deux fondateurs terminent la phrase l’un de l’autre, puis se coupent.] {company}, c’est… — …c’est la rencontre du produit et du terrain. On a juste des façons différentes de le dire.',
   ],
   rescape: [],
   'scientifique-transfuge': [],

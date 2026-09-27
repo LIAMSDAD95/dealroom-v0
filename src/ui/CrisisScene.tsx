@@ -16,6 +16,8 @@ interface CrisisSceneProps {
   portfolioCount?: number
   onOpenPortfolio?: () => void
   onResolved: (decision: CrisisDecision, outcome: CrisisOutcome) => void
+  /** Perk « Sang-froid » (§3.7) : +1 cran de fiabilité sur la réaction attendue. */
+  predictionBonus?: number
 }
 
 interface DecisionOption {
@@ -51,11 +53,12 @@ export function CrisisScene({
   portfolioCount,
   onOpenPortfolio,
   onResolved,
+  predictionBonus = 0,
 }: CrisisSceneProps) {
   const [selected, setSelected] = useState<CrisisDecision | null>(null)
   const [outcome, setOutcome] = useState<CrisisOutcome | null>(null)
   // La prédiction est tirée une seule fois : elle ne doit pas changer à chaque render.
-  const [prediction] = useState(() => predictReaction(crisis.line))
+  const [prediction] = useState(() => predictReaction(crisis.line, predictionBonus))
 
   const { line, event } = crisis
   const company = line.deal.companyName

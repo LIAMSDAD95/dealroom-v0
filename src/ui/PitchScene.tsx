@@ -1,13 +1,12 @@
 import { useEffect, useRef, useState } from 'react'
-import type { LpArchetype, PitchAngle } from '../signals-content/types'
-import type { LpOffer } from '../game-loop/lp-pool'
-import { pitchQuestionsByOfferId, unlockedAnglesFundI } from '../signals-content/pitch-questions'
+import type { EngagementId, LpArchetype, PitchAngle } from '../signals-content/types'
+import type { LpOffer, LpPitchRecord } from '../game-loop/lp-pool'
+import { pitchQuestionsByOfferId } from '../signals-content/pitch-questions'
 import {
   confidenceLabel,
   createPitchSession,
   proposedAmount,
   resolveAnswer,
-  STARTING_CONFIDENCE,
 } from '../game-loop/pitch-session'
 import styles from './PitchScene.module.css'
 
@@ -15,7 +14,11 @@ interface PitchSceneProps {
   offer: LpOffer
   archetype: LpArchetype
   onClose: () => void
-  onComplete: (offerId: string, amount: number) => void
+  onComplete: (offerId: string, amount: number, record: LpPitchRecord) => void
+  /** Angles ouverts par la réputation du GP (§3.7) — Conviction/Discipline au Fonds I. */
+  unlockedAngles: PitchAngle[]
+  /** Perk « Premier fonds bouclé » : confiance de départ supplémentaire. */
+  confidenceBonus?: number
 }
 
 interface ChatEntry {
@@ -30,6 +33,12 @@ const ANGLE_LABELS: Record<PitchAngle, { name: string; desc: string }> = {
   'track-record': { name: 'Track record', desc: '🔒 aucun historique' },
 }
 
+/** Description une fois l'angle débloqué par la réputation (§3.7). */
+const ANGLE_UNLOCKED_DESC: Partial<Record<PitchAngle, string>> = {
+  reseau: 'Mes introductions ouvrent les meilleurs deals.',
+  'track-record': 'Mes fonds précédents parlent pour moi.',
+}
+
 function initials(name: string): string {
   return name
     .split(' ')
@@ -40,9 +49,19 @@ function initials(name: string): string {
     .toUpperCase()
 }
 
-export function PitchScene({ offer, archetype, onClose, onComplete }: PitchSceneProps) {
+export function PitchScene({
+  offer,
+  archetype,
+  onClose,
+  onComplete,
+  unlockedAngles,
+  confidenceBonus = 0,
+}: PitchSceneProps) {
   const questions = pitchQuestionsByOfferId[offer.id] ?? []
-  const [session, setSession] = useState(() => createPitchSession(offer.id))
+  const [session, setSession] = useState(() => createPitchSession(offer.id, confidenceBonus))
+  // Relus à la clôture du fonds pour le rapport aux LPs (§3.8).
+  const [engagementIds, setEngagementIds] = useState<EngagementId[]>([])
+  const [incoherentAnswers, setIncoherentAnswers] = useState(0)
   const [qIndex, setQIndex] = useState(0)
   const [thread, setThread] = useState<ChatEntry[]>([])
   const [thinking, setThinking] = useState(false)
@@ -100,7 +119,7 @@ export function PitchScene({ offer, archetype, onClose, onComplete }: PitchScene
     const option = questions[qIndex].options[optionIndex]
     setThread((t) => [...t, { from: 'player', text: option.text }])
 
-    const { nextConfidence, coherenceNote } = resolveAnswer(
+    const { nextConfidence, coherenceNote, coherence } = resolveAnswer(
       session.angle,
       option,
       session.confidence,
@@ -113,6 +132,11 @@ export function PitchScene({ offer, archetype, onClose, onComplete }: PitchScene
     if (newLogEntries.length > 0) {
       setEngagementLog((log) => [...log, ...newLogEntries])
     }
+    const engagementId = option.engagementId
+    if (engagementId) {
+      setEngagementIds((ids) => (ids.includes(engagementId) ? ids : [...ids, engagementId]))
+    }
+    if (coherence === 'clash') setIncoherentAnswers((n) => n + 1)
 
     const nextIndex = qIndex + 1
     setQIndex(nextIndex)
@@ -149,7 +173,7 @@ export function PitchScene({ offer, archetype, onClose, onComplete }: PitchScene
             <div className={styles.gaugeTrack}>
               <div
                 className={styles.gaugeFill}
-                style={{ width: `${session.angle ? session.confidence : STARTING_CONFIDENCE}%` }}
+                style={{ width: `${session.confidence}%` }}
               />
             </div>
           </div>
@@ -176,7 +200,7 @@ export function PitchScene({ offer, archetype, onClose, onComplete }: PitchScene
             <div className={styles.angleGrid}>
               {(['conviction', 'discipline', 'reseau', 'track-record'] as PitchAngle[]).map(
                 (angle) => {
-                  const locked = !unlockedAnglesFundI.includes(angle)
+                  const locked = !unlockedAngles.includes(angle)
                   const chosen = session.angle === angle
                   return (
                     <button
@@ -189,7 +213,11 @@ export function PitchScene({ offer, archetype, onClose, onComplete }: PitchScene
                       onClick={() => chooseAngle(angle)}
                     >
                       <span className={styles.angleName}>{ANGLE_LABELS[angle].name}</span>
-                      <span className={styles.angleDesc}>{ANGLE_LABELS[angle].desc}</span>
+                      <span className={styles.angleDesc}>
+                        {locked
+                          ? ANGLE_LABELS[angle].desc
+                          : (ANGLE_UNLOCKED_DESC[angle] ?? ANGLE_LABELS[angle].desc)}
+                      </span>
                     </button>
                   )
                 },
@@ -258,7 +286,14 @@ export function PitchScene({ offer, archetype, onClose, onComplete }: PitchScene
               <button
                 type="button"
                 className={styles.confirmButton}
-                onClick={() => onComplete(offer.id, result.amount)}
+                onClick={() =>
+                  onComplete(offer.id, result.amount, {
+                    angle: session.angle ?? 'conviction',
+                    finalConfidence: session.confidence,
+                    engagementIds,
+                    incoherentAnswers,
+                  })
+                }
               >
                 Valider l'engagement →
               </button>

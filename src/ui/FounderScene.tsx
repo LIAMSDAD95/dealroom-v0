@@ -22,6 +22,8 @@ interface FounderSceneProps {
   remainingCapital: number
   onClose: () => void
   onInvest: (dealId: string) => void
+  /** Pitchs d'ouverture déjà entendus dans le run — mémoire tenue par App (ADR-002). */
+  heardOpenings: Set<string>
 }
 
 interface ChatEntry {
@@ -48,14 +50,27 @@ function formatCapital(amount: number): string {
   return `${Math.round(amount / 1_000)}K€`
 }
 
-export function FounderScene({ deal, remainingCapital, onClose, onInvest }: FounderSceneProps) {
+export function FounderScene({
+  deal,
+  remainingCapital,
+  onClose,
+  onInvest,
+  heardOpenings,
+}: FounderSceneProps) {
   const [questions] = useState<FounderQuestion[]>(() => drawSceneQuestions(deal.founderArchetypeId))
   const [state, setState] = useState<FounderSceneState>(createFounderSceneState)
   // Le fondateur ouvre l'entretien par son pitch (voir decisions.md, 2026-09-22).
-  const [thread, setThread] = useState<ChatEntry[]>(() => {
-    const opening = drawOpeningPitch(deal.founderArchetypeId, deal.companyName)
-    return opening ? [{ from: 'founder', text: opening }] : []
-  })
+  const [opening] = useState(() =>
+    drawOpeningPitch(deal.founderArchetypeId, deal.companyName, heardOpenings),
+  )
+  const [thread, setThread] = useState<ChatEntry[]>(() =>
+    opening ? [{ from: 'founder', text: opening.text }] : [],
+  )
+  // Mémorisé dans un effet (idempotent) plutôt qu'au tirage : en StrictMode, l'initialiseur
+  // de useState est appelé deux fois et marquerait deux pitchs comme entendus.
+  useEffect(() => {
+    if (opening) heardOpenings.add(opening.template)
+  }, [opening, heardOpenings])
   const [thinking, setThinking] = useState(false)
   const [revealedSignals, setRevealedSignals] = useState<DealTag[]>([])
 
@@ -74,7 +89,9 @@ export function FounderScene({ deal, remainingCapital, onClose, onInvest }: Foun
   // partir des signaux révélés (product-spec §3.3, jamais de score agrégé).
   const outOfAttention = isOutOfAttention(state)
   const walkedOut = hasFounderWalkedOut(state)
-  const interviewOver = outOfAttention || walkedOut
+  // On attend la réponse à la dernière question avant d'afficher l'encart de fin
+  // (retour utilisateur 2026-09-27) : sinon il apparaît pendant « Réfléchit… ».
+  const interviewOver = (outOfAttention || walkedOut) && !thinking
   const ticketTooExpensive = deal.askAmount > remainingCapital
 
   function askQuestion(question: FounderQuestion) {

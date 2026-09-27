@@ -3,7 +3,7 @@
 // ce fichier ne contient aucun calcul de confiance/montant, seulement le texte et les effets
 // bruts de chaque réponse — la résolution appartient à Game Loop.
 
-import type { PitchAngle, ResponseTone } from './types'
+import type { EngagementId, ResponseTone } from './types'
 
 export interface PitchAnswerOption {
   text: string
@@ -12,6 +12,8 @@ export interface PitchAnswerOption {
   tone: ResponseTone | null
   /** Libellé de l'engagement créé par cette réponse, s'il y en a un (product-spec §3.1.3). */
   engagementLabel: string | null
+  /** Identifiant vérifié à la clôture (§3.8) — renseigné si et seulement si engagementLabel l'est. */
+  engagementId: EngagementId | null
 }
 
 export interface PitchQuestion {
@@ -19,8 +21,8 @@ export interface PitchQuestion {
   options: PitchAnswerOption[]
 }
 
-/** Angles déjà débloqués au Fonds I (product-spec §3.1.3 : Réseau et Track record verrouillés). */
-export const unlockedAnglesFundI: PitchAngle[] = ['conviction', 'discipline']
+// Les angles ouverts dépendent de la réputation du GP : voir REPUTATION_TIERS
+// (game-loop/meta.ts). Au Fonds I, seuls Conviction et Discipline sont disponibles.
 
 // Clé = LpOffer.id (src/game-loop/lp-pool.data.ts). Seules les offres avec un contenu ici
 // ont une scène de pitch jouable pour l'instant — voir Claude/memory/decisions.md.
@@ -34,18 +36,21 @@ export const pitchQuestionsByOfferId: Record<string, PitchQuestion[]> = {
           confidenceDelta: 22,
           tone: 'discipline',
           engagementLabel: 'Respect strict de la limite de risque déclarée',
+          engagementId: 'risk-limit',
         },
         {
           text: 'Je vous consulterai au cas par cas.',
           confidenceDelta: 4,
           tone: 'aucun',
           engagementLabel: null,
+          engagementId: null,
         },
         {
           text: 'Je prendrai le risque si la conviction est assez forte.',
           confidenceDelta: -12,
           tone: 'conviction',
           engagementLabel: null,
+          engagementId: null,
         },
       ],
     },
@@ -57,18 +62,21 @@ export const pitchQuestionsByOfferId: Record<string, PitchQuestion[]> = {
           confidenceDelta: 18,
           tone: 'discipline',
           engagementLabel: null,
+          engagementId: null,
         },
         {
           text: 'Je fais confiance à mon instinct pour trancher vite.',
           confidenceDelta: -15,
           tone: 'conviction',
           engagementLabel: null,
+          engagementId: null,
         },
         {
           text: "Honnêtement, ça reste un vrai défi à ce stade.",
           confidenceDelta: 2,
           tone: 'aucun',
           engagementLabel: null,
+          engagementId: null,
         },
       ],
     },
@@ -82,18 +90,21 @@ export const pitchQuestionsByOfferId: Record<string, PitchQuestion[]> = {
           confidenceDelta: 20,
           tone: 'aucun',
           engagementLabel: 'Disponibilité forte annoncée aux fondateurs',
+          engagementId: 'founder-availability',
         },
         {
           text: 'Mon réseau et mon expérience feront la différence.',
           confidenceDelta: 8,
           tone: 'reseau',
           engagementLabel: null,
+          engagementId: null,
         },
         {
           text: 'Ma capacité à sourcer les meilleurs deals avant tout le monde.',
           confidenceDelta: -15,
           tone: 'aucun',
           engagementLabel: null,
+          engagementId: null,
         },
       ],
     },
@@ -105,18 +116,21 @@ export const pitchQuestionsByOfferId: Record<string, PitchQuestion[]> = {
           confidenceDelta: 16,
           tone: 'discipline',
           engagementLabel: 'Transparence sur les décisions d’investissement',
+          engagementId: 'transparency',
         },
         {
           text: 'Un accès prioritaire à mes meilleurs deals, en retour.',
           confidenceDelta: 6,
           tone: 'reseau',
           engagementLabel: null,
+          engagementId: null,
         },
         {
           text: "Je verrai au cas par cas, difficile de m'engager maintenant.",
           confidenceDelta: -10,
           tone: 'aucun',
           engagementLabel: null,
+          engagementId: null,
         },
       ],
     },
@@ -130,18 +144,21 @@ export const pitchQuestionsByOfferId: Record<string, PitchQuestion[]> = {
           confidenceDelta: 20,
           tone: 'discipline',
           engagementLabel: 'Information anticipée sur les opportunités de co-invest',
+          engagementId: 'co-invest',
         },
         {
           text: "Ma conviction sur les deals que je choisis devrait suffire à vous convaincre.",
           confidenceDelta: -10,
           tone: 'conviction',
           engagementLabel: null,
+          engagementId: null,
         },
         {
           text: 'Je ne peux rien garantir tant que le deal flow ne s’est pas confirmé.',
           confidenceDelta: 2,
           tone: 'aucun',
           engagementLabel: null,
+          engagementId: null,
         },
       ],
     },
@@ -153,18 +170,21 @@ export const pitchQuestionsByOfferId: Record<string, PitchQuestion[]> = {
           confidenceDelta: 18,
           tone: 'discipline',
           engagementLabel: null,
+          engagementId: null,
         },
         {
           text: "Je m'adapterai en fonction des signaux du marché, sans plan figé.",
           confidenceDelta: -8,
           tone: 'aucun',
           engagementLabel: null,
+          engagementId: null,
         },
         {
           text: 'Un bon deal reste un bon deal, quel que soit le climat.',
           confidenceDelta: -14,
           tone: 'conviction',
           engagementLabel: null,
+          engagementId: null,
         },
       ],
     },
@@ -178,18 +198,21 @@ export const pitchQuestionsByOfferId: Record<string, PitchQuestion[]> = {
           confidenceDelta: 22,
           tone: 'discipline',
           engagementLabel: 'Reporting trimestriel du risque de portefeuille',
+          engagementId: 'risk-reporting',
         },
         {
           text: 'Je fais confiance à mon jugement pour ne pas dépasser cette limite.',
           confidenceDelta: -12,
           tone: 'conviction',
           engagementLabel: null,
+          engagementId: null,
         },
         {
           text: "C'est une contrainte que je découvre vraiment en marchant.",
           confidenceDelta: -5,
           tone: 'aucun',
           engagementLabel: null,
+          engagementId: null,
         },
       ],
     },
@@ -201,18 +224,21 @@ export const pitchQuestionsByOfferId: Record<string, PitchQuestion[]> = {
           confidenceDelta: 20,
           tone: 'discipline',
           engagementLabel: 'Respect strict de la limite de risque déclarée',
+          engagementId: 'risk-limit',
         },
         {
           text: 'Je vous consulte avant toute décision qui s’en approche.',
           confidenceDelta: 6,
           tone: 'aucun',
           engagementLabel: null,
+          engagementId: null,
         },
         {
           text: "Je négocie une exception si la conviction est suffisamment forte.",
           confidenceDelta: -15,
           tone: 'conviction',
           engagementLabel: null,
+          engagementId: null,
         },
       ],
     },

@@ -3,13 +3,35 @@ import '../ui/tokens.css'
 import '../ui/fonts.css'
 import '../ui/global.css'
 import { fundIOffers } from '../game-loop/lp-pool.data'
+import { formatFundNumber } from '../game-loop/fund'
 import { generateQuarterDeals } from '../game-loop/deal-generator'
 import type { Crisis } from '../game-loop/crisis'
 import { maybeTriggerCrisis } from '../game-loop/crisis'
 import type { Deal } from '../game-loop/deal'
 import type { LpOffer } from '../game-loop/lp-pool'
+import { withReturningLps } from '../game-loop/lp-pool'
+import type { LpReport } from '../game-loop/lp-report'
+import { buildLpReport, returningLpsFrom } from '../game-loop/lp-report'
+import type { CrisisRecord, MetaProgress, RunGains } from '../game-loop/meta'
+import {
+  computeRunGains,
+  hasPerk,
+  nextMeta,
+  PREMIER_FONDS_CONFIDENCE_BONUS,
+  unlockedAngles,
+} from '../game-loop/meta'
+import type { ClosingMetrics, LineOutcome } from '../game-loop/run-closing'
+import { closingMetrics, resolveRunClose } from '../game-loop/run-closing'
+import { loadMeta, saveMeta } from '../persistence/meta-storage'
 import type { PortfolioLine } from '../game-loop/portfolio'
-import { createPortfolioLine } from '../game-loop/portfolio'
+import { activeLines, createPortfolioLine } from '../game-loop/portfolio'
+import type { FollowOnOffer, QuarterEvolution } from '../game-loop/portfolio-evolution'
+import {
+  advancePortfolio,
+  applyCrisisEffect,
+  resolveFollowOn,
+  reviewDueDiligence,
+} from '../game-loop/portfolio-evolution'
 import { STARTING_BANDWIDTH } from '../game-loop/resources'
 import type { Thesis } from '../game-loop/thesis'
 import { ThesisDeclaration } from '../ui/ThesisDeclaration'
@@ -17,31 +39,74 @@ import { FundraisingScreen } from '../ui/FundraisingScreen'
 import { DealFlowScreen } from '../ui/DealFlowScreen'
 import { CrisisScene } from '../ui/CrisisScene'
 import { PortfolioPanel } from '../ui/PortfolioPanel'
+import { PortfolioScreen } from '../ui/PortfolioScreen'
+import { RunClosingScreen } from '../ui/RunClosingScreen'
 
 type Screen =
   | { name: 'thesis' }
   | { name: 'fundraising'; thesis: Thesis }
+  // Rapport de portefeuille en ouverture de trimestre (§3.2.1) : évolutions silencieuses +
+  // follow-on, avant la crise éventuelle et le deal flow. Absent tant que le portefeuille
+  // est vide (voir decisions.md, 2026-09-27).
+  | {
+      name: 'portfolio-report'
+      thesis: Thesis
+      deals: Deal[]
+      quarter: number
+      evolutions: QuarterEvolution[]
+      followOns: FollowOnOffer[]
+    }
   | { name: 'deal-flow'; thesis: Thesis; deals: Deal[]; quarter: number }
   // La crise s'intercale AVANT le deal flow du trimestre : le joueur traite le choc de
   // portefeuille, puis continue vers les nouvelles opportunités (§3.6).
   | { name: 'crisis'; thesis: Thesis; deals: Deal[]; quarter: number; crisis: Crisis }
-  | { name: 'run-closed'; thesis: Thesis }
+  // Clôture (§3.8) : tout est calculé une seule fois à la transition, jamais pendant un render.
+  | {
+      name: 'run-closed'
+      outcomes: LineOutcome[]
+      metrics: ClosingMetrics
+      lpReports: LpReport[]
+      gains: RunGains
+      next: MetaProgress
+    }
 
-function App() {
+interface RunProps {
+  meta: MetaProgress
+  /** Passe au fonds suivant avec la méta-progression gagnée (déjà sauvegardée). */
+  onStartNextFund: (next: MetaProgress) => void
+}
+
+/**
+ * Un run = un fonds. Monté avec `key={meta.fundNumber}` : lancer le fonds suivant remonte
+ * une instance neuve, donc tout l'état du run repart à zéro sans réinitialisation manuelle.
+ */
+function Run({ meta, onStartNextFund }: RunProps) {
+  const fundLabel = formatFundNumber(meta.fundNumber)
   const [screen, setScreen] = useState<Screen>({ name: 'thesis' })
-  const [offers, setOffers] = useState<LpOffer[]>(fundIOffers)
+  // Les LPs qui ont reconduit au fonds précédent sont engagés d'office (§3.8).
+  const [offers, setOffers] = useState<LpOffer[]>(() =>
+    withReturningLps(fundIOffers, meta.returningLps),
+  )
   // Cumulé sur tout le run : les investissements des trimestres précédents restent
   // déployés (voir Claude/memory/decisions.md, 2026-09-22).
   const [deployedCapital, setDeployedCapital] = useState(0)
   // Lignes investies sur tout le run — c'est la cible des crises macro (§3.6).
   const [portfolio, setPortfolio] = useState<PortfolioLine[]>([])
-  // Bande passante déjà consommée par la crise du trimestre en cours : elle est dépensée
-  // avant le deal flow, donc le joueur entre le trimestre avec moins de points.
-  const [crisisBandwidthSpent, setCrisisBandwidthSpent] = useState(0)
+  // Bande passante déjà consommée avant le deal flow du trimestre en cours (« Revoir DD »
+  // sur un follow-on, « Mobiliser son réseau » en crise) : le joueur entre dans le deal
+  // flow avec moins de points.
+  const [quarterBandwidthSpent, setQuarterBandwidthSpent] = useState(0)
   // Startups déjà croisées dans ce run — le générateur est stateless (ADR-002), c'est
   // donc ici qu'on tient la mémoire pour éviter qu'une même startup revienne d'un
   // trimestre à l'autre (retour utilisateur 2026-09-24).
   const seenCompanyNames = useRef<Set<string>>(new Set())
+  // Même principe pour les pitchs d'ouverture des fondateurs : un pitch déjà entendu ne
+  // revient pas tant que la banque de l'archétype n'est pas épuisée (retour 2026-09-27).
+  const heardOpenings = useRef<Set<string>>(new Set())
+  // Faits du run relus seulement à la clôture (leçons §3.7, engagements LP §3.8) : jamais
+  // affichés en cours de partie, d'où des refs plutôt que du state.
+  const crisisLog = useRef<CrisisRecord[]>([])
+  const followedLineIds = useRef<Set<string>>(new Set())
   // Panneau de récap consultable à tout moment (voir decisions.md, 2026-09-24).
   const [portfolioOpen, setPortfolioOpen] = useState(false)
 
@@ -66,19 +131,69 @@ function App() {
     .reduce((sum, o) => sum + (o.committedAmount ?? 0), 0)
 
   /**
-   * Avance d'un trimestre en passant par la scène de crise si elle se déclenche.
-   * Le tirage se fait ici, une seule fois par transition — jamais pendant un render.
+   * Avance d'un trimestre : rapport de portefeuille s'il y a des lignes actives, puis
+   * scène de crise si elle se déclenche, puis deal flow. Les tirages se font ici, une
+   * seule fois par transition — jamais pendant un render.
    */
   function enterQuarter(thesis: Thesis, quarter: number, currentPortfolio: PortfolioLine[]) {
     const deals = generateQuarterDeals(thesis, quarter, seenCompanyNames.current)
     for (const deal of deals) seenCompanyNames.current.add(deal.companyName)
+    setQuarterBandwidthSpent(0)
+
+    if (activeLines(currentPortfolio).length > 0) {
+      const report = advancePortfolio(currentPortfolio, quarter)
+      setPortfolio(report.portfolio)
+      setScreen({
+        name: 'portfolio-report',
+        thesis,
+        deals,
+        quarter,
+        evolutions: report.evolutions,
+        followOns: report.followOns,
+      })
+      return
+    }
+    enterCrisisOrDealFlow(thesis, deals, quarter, currentPortfolio)
+  }
+
+  function enterCrisisOrDealFlow(
+    thesis: Thesis,
+    deals: Deal[],
+    quarter: number,
+    currentPortfolio: PortfolioLine[],
+  ) {
     const crisis = maybeTriggerCrisis(currentPortfolio, quarter)
-    setCrisisBandwidthSpent(0)
     setScreen(
       crisis
         ? { name: 'crisis', thesis, deals, quarter, crisis }
         : { name: 'deal-flow', thesis, deals, quarter },
     )
+  }
+
+  /**
+   * Clôture du fonds (§3.8) : dénouement accéléré, rapport aux LPs, gains de méta-progression.
+   * La méta-progression est sauvegardée tout de suite, pour qu'un rechargement de page sur
+   * l'écran de clôture ne fasse pas perdre les gains du run.
+   */
+  function closeFund() {
+    const outcomes = resolveRunClose(portfolio)
+    const metrics = closingMetrics(outcomes)
+    const facts = { portfolio, metrics, crises: crisisLog.current, totalRaised }
+    const lpReports = offers
+      .filter((o) => o.status === 'committed')
+      .map((offer) => buildLpReport(offer, facts))
+    const returningLps = returningLpsFrom(lpReports)
+    const gains = computeRunGains(meta, {
+      outcomes,
+      metrics,
+      crises: crisisLog.current,
+      followedLineIds: [...followedLineIds.current],
+      followingLpCount: returningLps.length,
+    })
+    const next = nextMeta(meta, gains, returningLps)
+    saveMeta(next)
+    setPortfolioOpen(false)
+    setScreen({ name: 'run-closed', outcomes, metrics, lpReports, gains, next })
   }
 
   // Le récap de portefeuille doit pouvoir s'ouvrir par-dessus n'importe quel écran : on
@@ -94,18 +209,24 @@ function App() {
   if (screen.name === 'thesis') {
     // Avant la levée de fonds, rien à consulter : pas de bouton portefeuille.
     currentScreen = (
-      <ThesisDeclaration onConfirm={(thesis) => setScreen({ name: 'fundraising', thesis })} />
+      <ThesisDeclaration
+        fundLabel={fundLabel}
+        onConfirm={(thesis) => setScreen({ name: 'fundraising', thesis })}
+      />
     )
   } else if (screen.name === 'fundraising') {
     currentScreen = (
       <FundraisingScreen
         thesis={screen.thesis}
         offers={offers}
-        onOfferCommitted={(offerId, amount) => {
+        fundLabel={fundLabel}
+        unlockedAngles={unlockedAngles(meta.reputation)}
+        confidenceBonus={hasPerk(meta, 'premier-fonds') ? PREMIER_FONDS_CONFIDENCE_BONUS : 0}
+        onOfferCommitted={(offerId, amount, record) => {
           setOffers((current) =>
             current.map((offer) =>
               offer.id === offerId
-                ? { ...offer, status: 'committed', committedAmount: amount }
+                ? { ...offer, status: 'committed', committedAmount: amount, pitchRecord: record }
                 : offer,
             ),
           )
@@ -116,6 +237,43 @@ function App() {
         }}
       />
     )
+  } else if (screen.name === 'portfolio-report') {
+    currentScreen = (
+      <PortfolioScreen
+        key={screen.quarter}
+        quarter={screen.quarter}
+        portfolio={portfolio}
+        evolutions={screen.evolutions}
+        followOns={screen.followOns}
+        offers={offers}
+        deployedCapital={deployedCapital}
+        bandwidth={STARTING_BANDWIDTH - quarterBandwidthSpent}
+        {...portfolioProps}
+        reviewCostsBandwidth={!hasPerk(meta, 'discipline-reserve')}
+        onReviewDd={(lineId) => {
+          // Perk « Discipline de réserve » (§3.7) : revoir la DD devient gratuit.
+          if (!hasPerk(meta, 'discipline-reserve')) setQuarterBandwidthSpent((b) => b + 1)
+          setPortfolio((lines) =>
+            lines.map((line) => (line.id === lineId ? reviewDueDiligence(line) : line)),
+          )
+        }}
+        onFollowOnDecided={(offer, decision) => {
+          if (decision === 'follow') {
+            setDeployedCapital((c) => c + offer.ticket)
+            followedLineIds.current.add(offer.lineId)
+          }
+          setPortfolio((lines) =>
+            lines.map((line) =>
+              line.id === offer.lineId ? resolveFollowOn(line, offer, decision) : line,
+            ),
+          )
+        }}
+        onContinue={() => {
+          // `portfolio` est à jour ici : les décisions follow-on ont été committées avant ce clic.
+          enterCrisisOrDealFlow(screen.thesis, screen.deals, screen.quarter, portfolio)
+        }}
+      />
+    )
   } else if (screen.name === 'crisis') {
     currentScreen = (
       <CrisisScene
@@ -123,24 +281,39 @@ function App() {
         crisis={screen.crisis}
         quarter={screen.quarter}
         remainingCapital={totalRaised - deployedCapital}
-        bandwidth={STARTING_BANDWIDTH - crisisBandwidthSpent}
+        bandwidth={STARTING_BANDWIDTH - quarterBandwidthSpent}
         {...portfolioProps}
-        onResolved={(_decision, outcome) => {
+        predictionBonus={hasPerk(meta, 'sang-froid') ? 1 : 0}
+        onResolved={(decision, outcome) => {
+          crisisLog.current.push({ decision, lineEffect: outcome.lineEffect })
           // Un coût de crise consomme du capital levé au même titre qu'un ticket ;
           // une récupération (atterrissage doux) le rend disponible à nouveau.
           if (outcome.capitalDelta !== 0) {
             setDeployedCapital((c) => c - outcome.capitalDelta)
           }
           if (outcome.bandwidthCost > 0) {
-            setCrisisBandwidthSpent((b) => b + outcome.bandwidthCost)
+            setQuarterBandwidthSpent((b) => b + outcome.bandwidthCost)
           }
-          if (outcome.closesLine) {
-            setPortfolio((lines) =>
-              lines.map((line) =>
-                line.id === screen.crisis.line.id ? { ...line, isActive: false } : line,
-              ),
-            )
-          }
+          setPortfolio((lines) =>
+            lines.map((line) => {
+              if (line.id !== screen.crisis.line.id) return line
+              if (outcome.closesLine) {
+                // Atterrissage en douceur : le capital récupéré est un retour réalisé (DPI).
+                return {
+                  ...line,
+                  isActive: false,
+                  exitKind: 'soft-landing',
+                  realizedValue: Math.max(0, outcome.capitalDelta),
+                }
+              }
+              // Un bridge est du capital investi dans la ligne : il entre dans son multiple.
+              const bridged =
+                outcome.capitalDelta < 0
+                  ? { ...line, investedAmount: line.investedAmount - outcome.capitalDelta }
+                  : line
+              return applyCrisisEffect(bridged, outcome.lineEffect)
+            }),
+          )
           setScreen({
             name: 'deal-flow',
             thesis: screen.thesis,
@@ -151,43 +324,31 @@ function App() {
       />
     )
   } else if (screen.name === 'run-closed') {
-    // Placeholder : l'écran de clôture de run (product-spec §3.8) est à construire une
-    // fois les maquettes reçues.
     currentScreen = (
-      <main style={{ minHeight: '100vh', padding: '4rem 2rem', color: 'var(--cream)' }}>
-        <p style={{ fontFamily: 'var(--font-pixel)', fontSize: '0.65rem', color: 'var(--mustard)' }}>
-          FIN DU RUN
-        </p>
-        <h1
-          style={{
-            fontFamily: 'var(--font-display)',
-            fontWeight: 900,
-            fontSize: '3rem',
-            textTransform: 'uppercase',
-            margin: '0.5rem 0 1rem',
-          }}
-        >
-          Fonds clôturé
-        </h1>
-        <p style={{ fontFamily: 'var(--font-mono)', color: 'var(--stone)' }}>
-          Écran de clôture à construire — maquettes en attente.
-        </p>
-      </main>
+      <RunClosingScreen
+        fundNumber={meta.fundNumber}
+        outcomes={screen.outcomes}
+        metrics={screen.metrics}
+        lpReports={screen.lpReports}
+        gains={screen.gains}
+        totalRaised={totalRaised}
+        onStartNextFund={() => onStartNextFund(screen.next)}
+      />
     )
   } else {
     currentScreen = (
       <DealFlowScreen
         // key : nouveau trimestre = écran neuf (statuts de cartes, bande passante,
         // signaux révélés repartent à zéro) sans avoir à réinitialiser chaque state.
-        // La bande passante consommée en crise fait partie de la key : sinon, revenir de la
-        // scène de crise au deal flow du MÊME trimestre réutiliserait l'instance existante
-        // et le coût ne serait jamais appliqué.
-        key={`${screen.quarter}-${crisisBandwidthSpent}`}
+        // La bande passante consommée avant le deal flow (follow-on, crise) fait partie de
+        // la key : sinon, revenir de la scène de crise au deal flow du MÊME trimestre
+        // réutiliserait l'instance existante et le coût ne serait jamais appliqué.
+        key={`${screen.quarter}-${quarterBandwidthSpent}`}
         deals={screen.deals}
         offers={offers}
         quarter={screen.quarter}
         deployedCapital={deployedCapital}
-        bandwidthSpent={crisisBandwidthSpent}
+        bandwidthSpent={quarterBandwidthSpent}
         {...portfolioProps}
         onCapitalDeployed={(deal, signalsRevealed) => {
           setDeployedCapital((c) => c + deal.askAmount)
@@ -201,7 +362,9 @@ function App() {
           // déjà été committés avant ce clic.
           enterQuarter(screen.thesis, screen.quarter + 1, portfolio)
         }}
-        onCloseFund={() => setScreen({ name: 'run-closed', thesis: screen.thesis })}
+        onCloseFund={closeFund}
+        heardOpenings={heardOpenings.current}
+        freeTeamSignal={hasPerk(meta, 'instinct-chasseur')}
       />
     )
   }
@@ -214,11 +377,18 @@ function App() {
           portfolio={portfolio}
           totalRaised={totalRaised}
           deployedCapital={deployedCapital}
+          fundLabel={fundLabel}
           onClose={() => setPortfolioOpen(false)}
         />
       )}
     </>
   )
+}
+
+function App() {
+  // Méta-progression relue une fois au démarrage (Persistence, §8.3).
+  const [meta, setMeta] = useState<MetaProgress>(loadMeta)
+  return <Run key={meta.fundNumber} meta={meta} onStartNextFund={setMeta} />
 }
 
 export default App

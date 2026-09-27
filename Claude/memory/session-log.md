@@ -33,3 +33,22 @@
 **État laissé** : projet fonctionnel au nouveau chemin, serveur de dev démarré et vérifié. **Attention — à faire au prochain démarrage** : le retrait du contournement dans `vite.config.ts` et les mises à jour de registres ne sont **pas encore commités**, et le commit `8ee0ba9` de la session précédente n'était pas encore poussé sur GitHub au moment du déplacement — vérifier `git status` et `git log origin/main..HEAD`.
 
 **Prochaine étape suggérée** : inchangée — écran de clôture de run (§3.8), en attente des maquettes.
+
+## [2026-09-27] Évolutions silencieuses + follow-on (lot 1 avant la clôture)
+
+**Fait** : cadrage avec l'utilisateur à partir des maquettes `vc-techwear-endrun_1.html` et `vc-techwear-portfolio_3.html` (arbitrages dans decisions.md, même date). Construit : modèle de valorisation à destinée cachée, tick trimestriel (évolutions, fermetures, tours), cartes follow-on (suivre / refuser = dilution / revoir DD), écran `PortfolioScreen` en ouverture de trimestre, effet des crises sur la trajectoire des lignes, valeur estimée dans le panneau `P`.
+**Vérifié** : typecheck + build OK ; 4 runs complets Q1→Q8 joués dans Chrome headless (script Puppeteer hors repo) — rapport sauté au Q2 si portefeuille vide, follow-on suivis/refusés/DD, crises (dont atterrissage → 0,4× réalisé), fermetures à 0×, clôture atteinte, 0 erreur console. Lint : 1 erreur préexistante dans `DealCard.tsx` (ref mise à jour pendant le render), non touchée.
+**État laissé** : non commité.
+**Prochaine étape suggérée** : lot 2 — dénouement accéléré au Q8, écran de clôture (§3.8), suivi des engagements LP pour les citations, persistance locale de la méta-progression (réputation + perks).
+
+**Retours de test utilisateur (même session)** — corrigés et vérifiés en navigateur :
+1. Pitch d'ouverture fondateur quasi identique d'un trimestre à l'autre : seulement 2 variantes par archétype. Passé à 4, et mémoire du run (`heardOpenings` dans `App`, même principe que `seenCompanyNames`) — 0 doublon sur 8 scènes, dont 3 fois le même archétype.
+2. Carte follow-on : « révélés ci-dessous » → « ci-dessus » (les signaux sont au-dessus de la note).
+3. Scène fondateur : l'encart « Entretien terminé » apparaissait pendant « Réfléchit… », dès que la dernière question vidait l'attention. Il attend maintenant la réponse (`interviewOver` exige `!thinking`).
+
+## [2026-09-27] Lot 2 — écran de clôture et méta-progression
+
+**Fait** : dénouement accéléré au Q8, écran de clôture d'après `vc-techwear-endrun_1.html` (TVPI/DPI, sorties par ligne reliées à la DD, rapport aux LPs avec citations sur engagements tenus/trahis, progression du GP), suivi des engagements LP, réputation + 4 leçons avec effets réels au fonds suivant, sauvegarde locale, bouton « Lancer le Fonds II » (LPs qui suivent engagés d'office). Arbitrages dans decisions.md.
+**Vérifié** : typecheck + build OK ; 2 runs complets Q1→clôture→Fonds II dans Chrome headless (sauvegarde écrite, « FONDS II » affiché, LP qui suit engagé d'office) ; Fonds II avec sauvegarde préparée (angle Réseau ouvert, jauge de confiance à 50 %, signal équipe offert sur les cartes, LP qui revient engagé) ; 0 erreur console. Effets *Sang-froid* et *Discipline de réserve* vérifiés au typecheck et à la lecture, pas déclenchés en navigateur.
+**État laissé** : lots 1 et 2 non commités.
+**Prochaine étape suggérée** : playtest de la clôture ; mécanique de co-invest (sinon l'engagement du Family Office reste inévaluable) ; commit.

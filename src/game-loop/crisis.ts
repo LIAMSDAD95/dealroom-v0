@@ -7,6 +7,7 @@ import { crisisEvents } from '../signals-content/crisis-events'
 import { founderArchetypes } from '../signals-content/founders'
 import type { FounderResilience } from '../signals-content/types'
 import type { PortfolioLine } from './portfolio'
+import type { CrisisLineEffect } from './portfolio-evolution'
 import { activeLines } from './portfolio'
 
 /** Aucune crise avant ce trimestre (voir Claude/memory/decisions.md, 2026-09-24). */
@@ -70,9 +71,16 @@ export interface CrisisPrediction {
  * attendue" dépend du nombre de signaux équipe révélés en due diligence. Sans signal,
  * la prédiction affichée est un pur pari (et peut être fausse).
  */
-export function predictReaction(line: PortfolioLine): CrisisPrediction {
-  const signalCount = line.knownTeamSignals.length
+export function predictReaction(line: PortfolioLine, reliabilityBonus = 0): CrisisPrediction {
+  // Perk « Sang-froid » (§3.7) : l'expérience vaut un signal équipe de plus.
+  const known = line.knownTeamSignals.length
+  const signalCount = known + reliabilityBonus
   const actual = resilienceOf(line)
+  const perkNote = reliabilityBonus > 0 ? ' Ton sang-froid affine la lecture.' : ''
+  const basis =
+    known === 0
+      ? 'Aucun signal équipe révélé en due diligence.'
+      : `Basée sur ${known} signal${known > 1 ? 'aux' : ''} équipe révélé${known > 1 ? 's' : ''}.`
 
   if (signalCount === 0) {
     // À l'aveugle : la prédiction affichée est tirée au hasard, elle vaut ce qu'elle vaut.
@@ -89,14 +97,14 @@ export function predictReaction(line: PortfolioLine): CrisisPrediction {
     return {
       reliability: 'partial',
       predictedResilience: correct ? actual : actual === 'resilient' ? 'fragile' : 'resilient',
-      note: 'Basée sur 1 seul signal équipe révélé. Prédiction incertaine.',
+      note: `${basis} Prédiction incertaine.${perkNote}`,
     }
   }
 
   return {
     reliability: 'reliable',
     predictedResilience: actual,
-    note: `Basée sur ${signalCount} signaux équipe révélés en due diligence. Prédiction fiable.`,
+    note: `${basis} Prédiction fiable.${perkNote}`,
   }
 }
 
@@ -110,6 +118,8 @@ export interface CrisisOutcome {
   bandwidthCost: number
   /** true si la ligne quitte le portefeuille actif (atterrissage en douceur). */
   closesLine: boolean
+  /** Effet sur la trajectoire de la ligne (portfolio-evolution.ts, decisions.md 2026-09-27). */
+  lineEffect: CrisisLineEffect
 }
 
 /** Résout une décision de crise — le résultat dépend de la résilience RÉELLE du fondateur. */
@@ -133,6 +143,7 @@ export function resolveCrisisDecision(
           capitalDelta: -SUPPORT_COST,
           bandwidthCost: 0,
           closesLine: false,
+          lineEffect: 'strengthen',
         }
       : {
           title: '✕ Bridge absorbé sans effet',
@@ -144,6 +155,7 @@ export function resolveCrisisDecision(
           capitalDelta: -SUPPORT_COST,
           bandwidthCost: 0,
           closesLine: false,
+          lineEffect: 'none',
         }
   }
 
@@ -159,6 +171,7 @@ export function resolveCrisisDecision(
           capitalDelta: 0,
           bandwidthCost: 0,
           closesLine: false,
+          lineEffect: 'none',
         }
       : {
           title: '✕ Aucune intervention — la ligne décroche',
@@ -170,6 +183,7 @@ export function resolveCrisisDecision(
           capitalDelta: 0,
           bandwidthCost: 0,
           closesLine: false,
+          lineEffect: 'weaken',
         }
   }
 
@@ -187,6 +201,7 @@ export function resolveCrisisDecision(
           capitalDelta: 0,
           bandwidthCost: 1,
           closesLine: false,
+          lineEffect: 'none',
         }
       : {
           title: '✕ Réseau mobilisé sans effet',
@@ -198,6 +213,7 @@ export function resolveCrisisDecision(
           capitalDelta: 0,
           bandwidthCost: 1,
           closesLine: false,
+          lineEffect: resilience === 'fragile' ? 'weaken' : 'none',
         }
   }
 
@@ -213,5 +229,6 @@ export function resolveCrisisDecision(
     capitalDelta: recovered,
     bandwidthCost: 0,
     closesLine: true,
+    lineEffect: 'none',
   }
 }
