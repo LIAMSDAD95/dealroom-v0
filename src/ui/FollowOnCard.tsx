@@ -2,6 +2,7 @@ import type { FollowOnDecision, FollowOnOffer } from '../game-loop/portfolio-evo
 import type { PortfolioLine } from '../game-loop/portfolio'
 import { followOnDdNotes } from '../signals-content/portfolio-evolutions'
 import { Icon } from './Icon'
+import { useTour } from './onboarding/onboarding-context'
 import styles from './FollowOnCard.module.css'
 
 interface FollowOnCardProps {
@@ -44,6 +45,8 @@ export function FollowOnCard({
   onReviewDd,
   onDecide,
 }: FollowOnCardProps) {
+  // Demandée par chaque carte, dédoublonnée par le provider (§8.2).
+  useTour('follow-on')
   const { deal } = line
   const isDownRound = offer.newValuation < offer.previousValuation
   const canFollow = offer.ticket <= remainingCapital

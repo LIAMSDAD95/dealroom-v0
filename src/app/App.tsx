@@ -41,6 +41,9 @@ import { CrisisScene } from '../ui/CrisisScene'
 import { PortfolioPanel } from '../ui/PortfolioPanel'
 import { PortfolioScreen } from '../ui/PortfolioScreen'
 import { RunClosingScreen } from '../ui/RunClosingScreen'
+import { DesktopOnlyScreen } from '../ui/DesktopOnlyScreen'
+import { OnboardingProvider } from '../ui/onboarding/OnboardingProvider'
+import { useIsDesktop } from './useIsDesktop'
 
 type Screen =
   | { name: 'thesis' }
@@ -388,7 +391,14 @@ function Run({ meta, onStartNextFund }: RunProps) {
 function App() {
   // Méta-progression relue une fois au démarrage (Persistence, §8.3).
   const [meta, setMeta] = useState<MetaProgress>(loadMeta)
-  return <Run key={meta.fundNumber} meta={meta} onStartNextFund={setMeta} />
+  const isDesktop = useIsDesktop()
+  return (
+    <OnboardingProvider>
+      <Run key={meta.fundNumber} meta={meta} onStartNextFund={setMeta} />
+      {/* Recouvre sans démonter : la partie reprend intacte si la fenêtre est agrandie (§8.1). */}
+      {!isDesktop && <DesktopOnlyScreen />}
+    </OnboardingProvider>
+  )
 }
 
 export default App

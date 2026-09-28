@@ -8,6 +8,7 @@ import {
   proposedAmount,
   resolveAnswer,
 } from '../game-loop/pitch-session'
+import { useTour } from './onboarding/onboarding-context'
 import styles from './PitchScene.module.css'
 
 interface PitchSceneProps {
@@ -57,6 +58,7 @@ export function PitchScene({
   unlockedAngles,
   confidenceBonus = 0,
 }: PitchSceneProps) {
+  useTour('lp-pitch')
   const questions = pitchQuestionsByOfferId[offer.id] ?? []
   const [session, setSession] = useState(() => createPitchSession(offer.id, confidenceBonus))
   // Relus à la clôture du fonds pour le rapport aux LPs (§3.8).
@@ -178,7 +180,9 @@ export function PitchScene({
             </div>
           </div>
 
-          <p className={styles.logTitle}>Engagements pris</p>
+          <p className={styles.logTitle} data-onboarding="pitch-engagements">
+            Engagements pris
+          </p>
           {engagementLog.length === 0 ? (
             <p className={styles.logEmpty}>Aucun engagement encore pris.</p>
           ) : (
@@ -197,7 +201,7 @@ export function PitchScene({
 
           <div>
             <p className={styles.angleTitle}>Étape 1 — Choisissez votre angle</p>
-            <div className={styles.angleGrid}>
+            <div className={styles.angleGrid} data-onboarding="pitch-angles">
               {(['conviction', 'discipline', 'reseau', 'track-record'] as PitchAngle[]).map(
                 (angle) => {
                   const locked = !unlockedAngles.includes(angle)

@@ -29,11 +29,16 @@ export function AppHeader({
       <span className={styles.logoMark} aria-hidden="true" />
       <span className={styles.logoText}>DEALROOM</span>
       {badges}
-      {resources && <div className={styles.resources}>{resources}</div>}
+      {resources && (
+        <div className={styles.resources} data-onboarding="header-resources">
+          {resources}
+        </div>
+      )}
       {showPortfolio && (
         <button
           type="button"
           className={styles.portfolioButton}
+          data-onboarding="portfolio-button"
           // Sans barre de ressources, le bouton doit pousser lui-même vers la droite.
           data-standalone={resources ? undefined : true}
           onClick={onOpenPortfolio}

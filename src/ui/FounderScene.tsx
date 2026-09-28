@@ -14,6 +14,7 @@ import {
 } from '../game-loop/founder-scene'
 import type { FounderQuestion } from '../signals-content/founder-questions'
 import { Icon } from './Icon'
+import { useTour } from './onboarding/onboarding-context'
 import styles from './FounderScene.module.css'
 
 interface FounderSceneProps {
@@ -57,6 +58,7 @@ export function FounderScene({
   onInvest,
   heardOpenings,
 }: FounderSceneProps) {
+  useTour('founder-scene')
   const [questions] = useState<FounderQuestion[]>(() => drawSceneQuestions(deal.founderArchetypeId))
   const [state, setState] = useState<FounderSceneState>(createFounderSceneState)
   // Le fondateur ouvre l'entretien par son pitch (voir decisions.md, 2026-09-22).
@@ -129,6 +131,7 @@ export function FounderScene({
           </div>
           <p className={styles.founderDesc}>{deal.pitch}</p>
 
+          <div className={styles.gauges} data-onboarding="founder-gauges">
           <div className={styles.gauge}>
             <div className={styles.gaugeLabel}>
               <span>Attention</span>
@@ -162,7 +165,11 @@ export function FounderScene({
             </div>
           </div>
 
-          <p className={styles.logTitle}>Signaux révélés</p>
+          </div>
+
+          <p className={styles.logTitle} data-onboarding="founder-signals">
+            Signaux révélés
+          </p>
           {revealedSignals.length === 0 ? (
             <p className={styles.logEmpty}>Aucun signal révélé pour l’instant.</p>
           ) : (
@@ -233,7 +240,7 @@ export function FounderScene({
               <p className={styles.questionTitle}>
                 Questions disponibles — {state.attention} attention restante
               </p>
-              <div className={styles.qList}>
+              <div className={styles.qList} data-onboarding="founder-questions">
                 {availableQuestions.map((question) => {
                   const tooExpensive = !canAskQuestion(state, question)
                   return (

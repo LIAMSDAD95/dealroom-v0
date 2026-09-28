@@ -60,7 +60,12 @@ export function LpCard({ index, archetype, offer, tone, onPitch }: LpCardProps) 
           Déjà engagé — {formatCapital(offer.committedAmount ?? 0)}
         </button>
       ) : (
-        <button type="button" className={`${styles.actionButton} ${styles.primary}`} onClick={onPitch}>
+        <button
+          type="button"
+          className={`${styles.actionButton} ${styles.primary}`}
+          onClick={onPitch}
+          data-onboarding="lp-pitch-button"
+        >
           Pitcher →
         </button>
       )}

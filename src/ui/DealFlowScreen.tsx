@@ -10,6 +10,7 @@ import { FounderScene } from './FounderScene'
 import styles from './DealFlowScreen.module.css'
 import { LpBadge } from './LpBadge'
 import { SectionLabel } from './SectionLabel'
+import { useTour } from './onboarding/onboarding-context'
 
 interface DealFlowScreenProps {
   deals: Deal[]
@@ -60,6 +61,7 @@ export function DealFlowScreen({
   heardOpenings,
   freeTeamSignal = false,
 }: DealFlowScreenProps) {
+  useTour('deal-flow')
   const [statuses, setStatuses] = useState<Record<string, DealCardStatus>>(() =>
     Object.fromEntries(deals.map((d) => [d.id, 'pending'])),
   )
@@ -182,6 +184,7 @@ export function DealFlowScreen({
         <button
           type="button"
           className={styles.advanceButton}
+          data-onboarding="deal-flow-advance"
           onClick={isLastQuarter ? onCloseFund : onAdvanceQuarter}
         >
           {isLastQuarter ? 'Clôturer le fonds →' : `Passer au trimestre ${quarter + 1} →`}

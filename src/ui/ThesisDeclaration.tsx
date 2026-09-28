@@ -3,6 +3,7 @@ import type { Sector, Stage, Thesis, Zone } from '../game-loop/thesis'
 import { MAX_SECTORS, MIN_SECTORS, sectorOptions, stageOptions, zoneOptions } from '../game-loop/thesis'
 import { AppHeader } from './AppHeader'
 import { Chip } from './Chip'
+import { useTour } from './onboarding/onboarding-context'
 import styles from './ThesisDeclaration.module.css'
 
 interface ThesisDeclarationProps {
@@ -12,6 +13,7 @@ interface ThesisDeclarationProps {
 }
 
 export function ThesisDeclaration({ fundLabel, onConfirm }: ThesisDeclarationProps) {
+  useTour('thesis')
   const [sectors, setSectors] = useState<Sector[]>([])
   const [stage, setStage] = useState<Stage | null>(null)
   const [zone, setZone] = useState<Zone | null>(null)
@@ -48,7 +50,7 @@ export function ThesisDeclaration({ fundLabel, onConfirm }: ThesisDeclarationPro
           Un engagement pour tout le run. Dévier de votre thèse coûte de la confiance de vos LPs.
         </p>
 
-        <section className={styles.group}>
+        <section className={styles.group} data-onboarding="thesis-sectors">
           <p className={styles.groupLabel}>
             SECTEUR — {MIN_SECTORS} À {MAX_SECTORS}
           </p>
@@ -64,7 +66,7 @@ export function ThesisDeclaration({ fundLabel, onConfirm }: ThesisDeclarationPro
           </div>
         </section>
 
-        <section className={styles.group}>
+        <section className={styles.group} data-onboarding="thesis-stage-zone">
           <p className={styles.groupLabel}>STADE</p>
           <div className={styles.chips}>
             {stageOptions.map((option) => (
@@ -95,6 +97,7 @@ export function ThesisDeclaration({ fundLabel, onConfirm }: ThesisDeclarationPro
         <button
           type="button"
           className={styles.confirmButton}
+          data-onboarding="thesis-confirm"
           disabled={!isComplete}
           onClick={handleConfirm}
         >

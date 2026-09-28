@@ -422,3 +422,10 @@
   cursor: not-allowed;
   transform: none;
 }
+
+/* Attention + patience regroupées : cible commune de la bulle d'aide (§8.2). */
+.gauges {
+  display: flex;
+  flex-direction: column;
+  gap: 1.1rem;
+}

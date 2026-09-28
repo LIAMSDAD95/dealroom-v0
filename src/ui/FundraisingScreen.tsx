@@ -10,6 +10,7 @@ import { LpCard } from './LpCard'
 import styles from './FundraisingScreen.module.css'
 import { PitchScene } from './PitchScene'
 import { SectionLabel } from './SectionLabel'
+import { useTour } from './onboarding/onboarding-context'
 import { ThesisSummaryPanel } from './ThesisSummaryPanel'
 
 interface FundraisingScreenProps {
@@ -34,6 +35,7 @@ export function FundraisingScreen({
   confidenceBonus,
   fundLabel,
 }: FundraisingScreenProps) {
+  useTour('fundraising')
   const [pitchingOfferId, setPitchingOfferId] = useState<string | null>(null)
   const pitchingOffer = offers.find((o) => o.id === pitchingOfferId) ?? null
   const pitchingArchetype = pitchingOffer
@@ -56,14 +58,14 @@ export function FundraisingScreen({
           <ThesisSummaryPanel thesis={thesis} />
         </div>
 
-        <div className={styles.sectionSpacer}>
+        <div className={styles.sectionSpacer} data-onboarding="fund-progress">
           <SectionLabel icon="zap">PROGRESSION DU FONDS</SectionLabel>
           <FundProgressPanel offers={offers} target={FUND_I_TARGET} />
         </div>
 
         <div className={styles.sectionSpacer}>
           <SectionLabel icon="users">LPS DISPONIBLES</SectionLabel>
-          <div className={styles.grid}>
+          <div className={styles.grid} data-onboarding="lp-grid">
             {offers.map((offer, i) => {
               const archetype = lpArchetypes.find((a) => a.id === offer.archetypeId)
               if (!archetype) return null
@@ -84,6 +86,7 @@ export function FundraisingScreen({
         <button
           type="button"
           className={styles.proceedButton}
+          data-onboarding="fundraising-proceed"
           disabled={!hasCommittedOffer}
           onClick={onProceedToQuarterOne}
         >

@@ -3,6 +3,7 @@ import type { Crisis, CrisisDecision, CrisisOutcome } from '../game-loop/crisis'
 import { predictReaction, resilienceOf, resolveCrisisDecision, SUPPORT_COST } from '../game-loop/crisis'
 import { AppHeader } from './AppHeader'
 import { Icon } from './Icon'
+import { useTour } from './onboarding/onboarding-context'
 import styles from './CrisisScene.module.css'
 
 interface CrisisSceneProps {
@@ -55,6 +56,7 @@ export function CrisisScene({
   onResolved,
   predictionBonus = 0,
 }: CrisisSceneProps) {
+  useTour('crisis')
   const [selected, setSelected] = useState<CrisisDecision | null>(null)
   const [outcome, setOutcome] = useState<CrisisOutcome | null>(null)
   // La prédiction est tirée une seule fois : elle ne doit pas changer à chaque render.
@@ -166,7 +168,7 @@ export function CrisisScene({
               </p>
             </div>
 
-            <div>
+            <div data-onboarding="crisis-prediction">
               <p className={styles.predictLabel}>
                 <Icon name="alert-circle" size={14} />
                 Réaction attendue
@@ -218,7 +220,11 @@ export function CrisisScene({
                 <span className={styles.decisionSub}>AUCUNE OPTION SANS RISQUE</span>
               </div>
 
-              <div className={styles.decisionGrid} data-locked={outcome !== null || undefined}>
+              <div
+                className={styles.decisionGrid}
+                data-locked={outcome !== null || undefined}
+                data-onboarding="crisis-decisions"
+              >
                 {options.map((option) => (
                   <button
                     key={option.key}

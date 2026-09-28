@@ -13,6 +13,7 @@ import { AppHeader } from './AppHeader'
 import { FollowOnCard } from './FollowOnCard'
 import { LpBadge } from './LpBadge'
 import { SectionLabel } from './SectionLabel'
+import { useTour } from './onboarding/onboarding-context'
 import styles from './PortfolioScreen.module.css'
 
 interface PortfolioScreenProps {
@@ -68,6 +69,7 @@ export function PortfolioScreen({
   onFollowOnDecided,
   onContinue,
 }: PortfolioScreenProps) {
+  useTour('portfolio-report')
   const [decisions, setDecisions] = useState<Record<string, FollowOnDecision>>({})
 
   const committedOffers = offers.filter((o) => o.status === 'committed')
@@ -129,7 +131,7 @@ export function PortfolioScreen({
 
         <section className={styles.section}>
           <SectionLabel icon="bar-chart">BILAN DU TRIMESTRE</SectionLabel>
-          <div className={styles.statsPanel}>
+          <div className={styles.statsPanel} data-onboarding="portfolio-stats">
             <div className={styles.stat}>
               <span className={styles.statLabel}>TVPI estimé</span>
               <span className={styles.statValue}>
@@ -157,7 +159,7 @@ export function PortfolioScreen({
         {evolutions.length > 0 && (
           <section className={styles.section}>
             <SectionLabel icon="activity">ÉVOLUTIONS SILENCIEUSES</SectionLabel>
-            <div className={styles.evoPanel}>
+            <div className={styles.evoPanel} data-onboarding="portfolio-evolutions">
               {evolutions.map((evolution) => {
                 const line = lineById.get(evolution.lineId)
                 if (!line) return null
@@ -181,7 +183,7 @@ export function PortfolioScreen({
             <SectionLabel icon="layers">
               {`OPPORTUNITÉS DE FOLLOW-ON — ${followOns.length} DÉCISION${followOns.length > 1 ? 'S' : ''}`}
             </SectionLabel>
-            <div className={styles.foGrid}>
+            <div className={styles.foGrid} data-onboarding="portfolio-follow-ons">
               {followOns.map((offer) => {
                 const line = lineById.get(offer.lineId)
                 if (!line) return null
@@ -209,6 +211,7 @@ export function PortfolioScreen({
         <button
           type="button"
           className={styles.continueButton}
+          data-onboarding="portfolio-continue"
           onClick={onContinue}
           // Jamais d'enchaînement implicite : chaque follow-on attend une décision explicite.
           disabled={pendingCount > 0}

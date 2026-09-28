@@ -17,6 +17,7 @@ import { angleUnlockTexts, perkTexts, reputationTierLabels } from '../signals-co
 import { AppHeader } from './AppHeader'
 import { Icon } from './Icon'
 import { SectionLabel } from './SectionLabel'
+import { useTour } from './onboarding/onboarding-context'
 import styles from './RunClosingScreen.module.css'
 
 interface RunClosingScreenProps {
@@ -101,6 +102,7 @@ export function RunClosingScreen({
   totalRaised,
   onStartNextFund,
 }: RunClosingScreenProps) {
+  useTour('run-closing')
   const fund = formatFundNumber(fundNumber)
   // Meilleurs multiples en tête : la loi de puissance se lit de haut en bas.
   const sorted = [...outcomes].sort((a, b) => b.multiple - a.multiple)
@@ -120,7 +122,7 @@ export function RunClosingScreen({
       />
 
       <div className={styles.content}>
-        <div className={styles.hero}>
+        <div className={styles.hero} data-onboarding="closing-hero">
           <p className={styles.heroEyebrow}>FONDS {fund} — RAPPORT FINAL</p>
           <p className={styles.heroTvpi}>{formatMultiple(metrics.tvpi)} TVPI</p>
           <p className={styles.heroSub}>
@@ -184,7 +186,7 @@ export function RunClosingScreen({
             <SectionLabel icon="users">RAPPORT AUX LPS</SectionLabel>
             <span className={styles.secSub}>{lpReports.length} LPS</span>
           </div>
-          <div className={styles.lpGrid}>
+          <div className={styles.lpGrid} data-onboarding="closing-lps">
             {lpReports.map((report) => (
               <article key={report.offer.id} className={styles.lpCard} data-verdict={report.verdict}>
                 <div className={styles.lpTop}>
@@ -204,7 +206,7 @@ export function RunClosingScreen({
           </div>
         </section>
 
-        <section className={styles.section}>
+        <section className={styles.section} data-onboarding="closing-progression">
           <SectionLabel icon="zap">PROGRESSION DU GP</SectionLabel>
           <div className={styles.metaSummary}>
             <div className={styles.repLabel}>

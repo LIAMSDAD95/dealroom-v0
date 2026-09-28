@@ -52,3 +52,10 @@
 **Vérifié** : typecheck + build OK ; 2 runs complets Q1→clôture→Fonds II dans Chrome headless (sauvegarde écrite, « FONDS II » affiché, LP qui suit engagé d'office) ; Fonds II avec sauvegarde préparée (angle Réseau ouvert, jauge de confiance à 50 %, signal équipe offert sur les cartes, LP qui revient engagé) ; 0 erreur console. Effets *Sang-froid* et *Discipline de réserve* vérifiés au typecheck et à la lecture, pas déclenchés en navigateur.
 **État laissé** : lots 1 et 2 non commités.
 **Prochaine étape suggérée** : playtest de la clôture ; mécanique de co-invest (sinon l'engagement du Family Office reste inévaluable) ; commit.
+
+## [2026-09-27] Écran de blocage mobile + onboarding
+
+**Fait** : lots 1-2 commités et poussés sur `main` (`ebbe603`). Puis écran de blocage mobile et onboarding par bulles (voir decisions.md, même date).
+**Vérifié** : build OK. Chrome headless : téléphone et tablette tactile bloqués, desktop 1400 px non bloqué, fenêtre rétrécie puis ré-agrandie → partie conservée. Onboarding : 10 visites parcourues sur un run complet, toutes les bulles entièrement dans l'écran, chrono figé à 40 s pendant l'aide puis reprise, aide non réaffichée après rechargement, « Ne plus afficher » coupe tout ; 0 erreur console. Corrigé en route : bulle qui débordait (box-sizing), étape follow-on jamais vue (visite séparée).
+**État laissé** : non commité.
+**Ajout (2026-09-28)** : bouton « ? AIDE » flottant qui rejoue la visite de l'écran en cours (voir decisions.md). Vérifié en navigateur sur thèse, levée, pitch LP, deal flow (chrono figé) et entretien fondateur, y compris après « Ne plus afficher l'aide » ; 0 erreur console.

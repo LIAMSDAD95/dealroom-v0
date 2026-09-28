@@ -216,3 +216,18 @@ Contenu : chaque archétype Phase 0 a une banque de 8-10 questions écrites (que
 - **Persistance** : `localStorage`, clé `dealroom.meta.v1`, sauvegardée dès la transition vers la clôture. « Lancer le Fonds II » remonte le run (`<Run key={fundNumber}>`) : tout l'état de partie repart à zéro, seule la méta-progression passe.
 **Raison** : demande utilisateur (écran de clôture d'après maquette, option A, perk de remplacement). Les seuils des engagements, les paliers et les perks ne sont pas tranchés par le product-spec : valeurs de départ à ajuster en playtest, regroupées en constantes en tête de `lp-report.ts` et `meta.ts`.
 **Domaine concerné** : Game Loop (`run-closing.ts`, `lp-report.ts`, `meta.ts`, `pitch-session.ts`, `crisis.ts`, `lp-pool.ts`) / Signals & Content (`closing-content.ts`, `meta-content.ts`, `EngagementId` sur `pitch-questions.ts`) / Persistence (`meta-storage.ts`) / UI (`RunClosingScreen`, effets de perks dans `DealCard`, `CrisisScene`, `PitchScene`, `FollowOnCard`) / Technical (`App.tsx` : `Run` + wrapper de méta-progression).
+
+## [2026-09-27] Écran de blocage mobile (§8.1) et onboarding progressif (§8.2)
+
+**Décision** :
+- **Blocage, pas simple avertissement** (choix utilisateur) : écran plein « À jouer sur ordinateur » sous 1024 px de large, ou sur un appareil tactile sans pointeur précis (`(pointer: coarse) and (not (any-pointer: fine))` — bloque aussi les tablettes). Il **recouvre** le jeu sans le démonter : un joueur desktop qui rétrécit sa fenêtre retrouve sa partie intacte en l'agrandissant. Détection dans `src/app/useIsDesktop.ts` (Technical), écran dans `ui/DesktopOnlyScreen`.
+- **Onboarding sans maquette** (choix utilisateur) : une visite guidée par écran (thèse, levée, pitch LP, deal flow, entretien fondateur, rapport de portefeuille, follow-on, crise, clôture), affichée la première fois que le joueur y arrive. Bulle crème à bordure noire + mise en lumière de l'élément ciblé (attribut `data-onboarding`), boutons Suivant / Passer / « Ne plus afficher l'aide », clavier Entrée/→/Échap. Le jeu n'est pas cliquable pendant une visite et **les chronos des cartes rapides sont en pause**. Visites vues et désactivation mémorisées dans `localStorage` (`dealroom.onboarding.v1`).
+- Une étape dont la cible est absente est sautée ; pour cette raison, le follow-on a **sa propre visite**, déclenchée par la première carte follow-on (le premier rapport de portefeuille n'en a presque jamais : l'étape aurait été sautée puis marquée vue).
+**Raison** : objectifs Phase 0 du PRD §3. Textes en tutoiement, comme les écrans récents.
+**Domaine concerné** : Technical (`useIsDesktop`, montage dans `App`) / UI (`DesktopOnlyScreen`, `ui/onboarding/`, cibles sur les écrans, pause du chrono dans `DealCard`) / Signals & Content (`onboarding-content.ts`) / Persistence (`onboarding-storage.ts`).
+
+## [2026-09-28] Bouton « Aide » pour rejouer l'onboarding
+
+**Décision** : bouton flottant « ? AIDE » en bas à droite, sur tous les écrans, qui rejoue la visite de l'écran affiché — même déjà vue, et même si le joueur a choisi « Ne plus afficher l'aide » (demande explicite). Flottant plutôt que dans le header, parce que les scènes en modale (pitch LP, entretien fondateur) recouvrent le header : il est placé au-dessus d'elles (z-index 250), et si une scène est ouverte c'est sa visite qui est rejouée, pas celle de l'écran dessous. Masqué pendant une visite.
+**Raison** : demande utilisateur, pour permettre aux testeurs de revoir une explication sans vider leur stockage.
+**Domaine concerné** : UI (`ui/onboarding/`).

@@ -3,6 +3,7 @@ import type { Deal, DealTag } from '../game-loop/deal'
 import type { DealCardStatus } from '../game-loop/deal-flow'
 import { DEAL_CARD_TIMER_SECONDS } from '../game-loop/deal-flow'
 import { Icon } from './Icon'
+import { useOnboardingActive } from './onboarding/onboarding-context'
 import styles from './DealCard.module.css'
 
 interface DealCardProps {
@@ -38,14 +39,16 @@ function DealTags({
   tags,
   signalsRevealed,
   freeTeamSignal = false,
+  onboardingId,
 }: {
   tags: DealTag[]
   signalsRevealed: boolean
   freeTeamSignal?: boolean
+  onboardingId?: string
 }) {
   const freeTag = freeTeamSignal ? tags.find((t) => t.family === 'equipe') : undefined
   return (
-    <div className={styles.tags}>
+    <div className={styles.tags} data-onboarding={onboardingId}>
       {tags.map((tag) => {
         const revealed = isTagRevealed(tag, signalsRevealed) || tag === freeTag
         return (
@@ -76,6 +79,8 @@ export function DealCard({
   freeTeamSignal = false,
 }: DealCardProps) {
   const [secondsLeft, setSecondsLeft] = useState(DEAL_CARD_TIMER_SECONDS)
+  // Chrono figé pendant une bulle d'aide : le joueur lit, il ne doit pas perdre le deal.
+  const onboardingActive = useOnboardingActive()
   const onPassRef = useRef(onPass)
   onPassRef.current = onPass
 
@@ -87,13 +92,14 @@ export function DealCard({
   // Au timeout : auto-pass, jamais de pénalité.
   useEffect(() => {
     if (deal.isDevelopedScene || status === 'passed' || status === 'invested') return
+    if (onboardingActive) return
     if (secondsLeft <= 0) {
       onPassRef.current()
       return
     }
     const id = window.setTimeout(() => setSecondsLeft((s) => s - 1), 1000)
     return () => window.clearTimeout(id)
-  }, [secondsLeft, deal.isDevelopedScene, status])
+  }, [secondsLeft, deal.isDevelopedScene, status, onboardingActive])
 
   const urgency = secondsLeft <= 10 ? 'danger' : secondsLeft <= 20 ? 'warning' : 'normal'
 
@@ -104,6 +110,7 @@ export function DealCard({
   if (deal.isDevelopedScene) {
     return (
       <article
+        data-onboarding="deal-pitch-card"
         className={styles.card}
         data-pitch="true"
         data-poached={showPoachingAlert || undefined}
@@ -164,6 +171,7 @@ export function DealCard({
 
   return (
     <article
+      data-onboarding="deal-card"
       className={styles.card}
       data-invested={isInvested || undefined}
       data-poached={showPoachingAlert || undefined}
@@ -197,9 +205,10 @@ export function DealCard({
         tags={deal.tags}
         signalsRevealed={signalsRevealed}
         freeTeamSignal={freeTeamSignal}
+        onboardingId="deal-tags"
       />
 
-      <div className={styles.actions}>
+      <div className={styles.actions} data-onboarding="deal-actions">
         {isPassed ? (
           <button type="button" className={styles.passedButton} disabled>
             Opportunité écartée
