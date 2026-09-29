@@ -98,3 +98,36 @@ export function isOutOfAttention(state: FounderSceneState): boolean {
 export function hasFounderWalkedOut(state: FounderSceneState): boolean {
   return state.patience <= 0
 }
+
+// --- Ticket ajustable (§3.4) -------------------------------------------------------------
+
+/** En dessous de cette part du montant demandé, le fondateur ne prend pas l'offre au sérieux. */
+export const MIN_TICKET_RATIO = 0.5
+/** Au-delà de cette part du capital, le fondateur refuse d'être dilué davantage. */
+export const MAX_FUND_OWNERSHIP = 0.15
+export const TICKET_STEP = 10_000
+
+export interface TicketRange {
+  min: number
+  max: number
+  /** false si le capital restant ne couvre même pas le minimum. */
+  affordable: boolean
+  /** true si c'est le seuil de dilution (et non le capital restant) qui plafonne le ticket. */
+  cappedByDilution: boolean
+}
+
+export function ticketRange(
+  deal: { askAmount: number; postMoney: number },
+  remainingCapital: number,
+): TicketRange {
+  const roundDown = (n: number) => Math.floor(n / TICKET_STEP) * TICKET_STEP
+  const min = Math.ceil((deal.askAmount * MIN_TICKET_RATIO) / TICKET_STEP) * TICKET_STEP
+  const dilutionCap = roundDown(deal.postMoney * MAX_FUND_OWNERSHIP)
+  const capitalCap = roundDown(remainingCapital)
+  const max = Math.min(dilutionCap, capitalCap)
+  return { min, max, affordable: max >= min, cappedByDilution: dilutionCap <= capitalCap }
+}
+
+export function ownershipForTicket(deal: { postMoney: number }, amount: number): number {
+  return amount / deal.postMoney
+}

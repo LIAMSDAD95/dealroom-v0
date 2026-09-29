@@ -9,7 +9,7 @@ import { OnboardingContext } from './onboarding-context'
 
 /** Ordre de lecture quand plusieurs visites sont rejouées ensemble (ex. rapport + follow-on). */
 const TOUR_ORDER = Object.keys(onboardingTours) as TourId[]
-const SCENE_TOURS: TourId[] = ['lp-pitch', 'founder-scene']
+const SCENE_TOURS: TourId[] = ['lp-pitch', 'founder-scene', 'founder-ticket']
 
 /**
  * Enchaîne les visites guidées demandées par les écrans, une seule à la fois, et retient

@@ -106,6 +106,8 @@ function Run({ meta, onStartNextFund }: RunProps) {
   // Même principe pour les pitchs d'ouverture des fondateurs : un pitch déjà entendu ne
   // revient pas tant que la banque de l'archétype n'est pas épuisée (retour 2026-09-27).
   const heardOpenings = useRef<Set<string>>(new Set())
+  // Idem pour les alertes trimestrielles : une crise déjà vécue ne revient pas (2026-09-29).
+  const seenCrisisIds = useRef<Set<string>>(new Set())
   // Faits du run relus seulement à la clôture (leçons §3.7, engagements LP §3.8) : jamais
   // affichés en cours de partie, d'où des refs plutôt que du state.
   const crisisLog = useRef<CrisisRecord[]>([])
@@ -165,7 +167,8 @@ function Run({ meta, onStartNextFund }: RunProps) {
     quarter: number,
     currentPortfolio: PortfolioLine[],
   ) {
-    const crisis = maybeTriggerCrisis(currentPortfolio, quarter)
+    const crisis = maybeTriggerCrisis(currentPortfolio, quarter, seenCrisisIds.current)
+    if (crisis) seenCrisisIds.current.add(crisis.event.id)
     setScreen(
       crisis
         ? { name: 'crisis', thesis, deals, quarter, crisis }
@@ -353,11 +356,11 @@ function Run({ meta, onStartNextFund }: RunProps) {
         deployedCapital={deployedCapital}
         bandwidthSpent={quarterBandwidthSpent}
         {...portfolioProps}
-        onCapitalDeployed={(deal, signalsRevealed) => {
-          setDeployedCapital((c) => c + deal.askAmount)
+        onCapitalDeployed={(deal, signalsRevealed, amount) => {
+          setDeployedCapital((c) => c + amount)
           setPortfolio((lines) => [
             ...lines,
-            createPortfolioLine(deal, deal.askAmount, screen.quarter, signalsRevealed),
+            createPortfolioLine(deal, amount, screen.quarter, signalsRevealed),
           ])
         }}
         onAdvanceQuarter={() => {

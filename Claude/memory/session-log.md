@@ -59,3 +59,12 @@
 **Vérifié** : build OK. Chrome headless : téléphone et tablette tactile bloqués, desktop 1400 px non bloqué, fenêtre rétrécie puis ré-agrandie → partie conservée. Onboarding : 10 visites parcourues sur un run complet, toutes les bulles entièrement dans l'écran, chrono figé à 40 s pendant l'aide puis reprise, aide non réaffichée après rechargement, « Ne plus afficher » coupe tout ; 0 erreur console. Corrigé en route : bulle qui débordait (box-sizing), étape follow-on jamais vue (visite séparée).
 **État laissé** : non commité.
 **Ajout (2026-09-28)** : bouton « ? AIDE » flottant qui rejoue la visite de l'écran en cours (voir decisions.md). Vérifié en navigateur sur thèse, levée, pitch LP, deal flow (chrono figé) et entretien fondateur, y compris après « Ne plus afficher l'aide » ; 0 erreur console.
+
+## [2026-09-29] Logo pixel + curseur de ticket
+
+**Fait** : réponses VO anglaise / mode clair (écartés, voir decisions.md) ; logo en police pixel sur tous les écrans ; curseur de ticket en fin d'entretien fondateur avec part et jauge de dilution.
+**Vérifié** : build OK ; en navigateur, curseur 80K→240K (15,0 % au max), montant choisi repris sur la carte, le header et le panneau P ; run complet jusqu'au Fonds II sans erreur.
+**Chronos en pause pendant l'entretien fondateur** (décision utilisateur) : vérifié en navigateur — 39 s figées pendant 4 s d'entretien, reprise à la fermeture.
+**État laissé** : non commité.
+**Prochaine étape** : collecte des données de playtest (§8.4) puis mécanique de co-invest.
+**Retour de playtest (2026-09-29)** : 3 alertes identiques dans un run → 7 alertes ajoutées + mémoire du run (voir decisions.md). 0 répétition sur 20 000 runs simulés ; 2 runs complets en navigateur sans erreur.

@@ -37,12 +37,12 @@
   gap: 0.5rem;
   margin: 0;
   font-family: var(--font-pixel);
-  font-size: 0.7rem;
+  font-size: 1rem;
 }
 
 .brandDot {
-  width: 9px;
-  height: 9px;
+  width: 13px;
+  height: 13px;
   background: var(--coral);
 }
 

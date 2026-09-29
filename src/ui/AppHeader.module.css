@@ -18,18 +18,19 @@
 }
 
 .logoMark {
-  width: 14px;
-  height: 14px;
+  width: 16px;
+  height: 16px;
   background: var(--coral);
-  border-radius: 3px;
 }
 
+/* Nom du jeu en police pixel, comme les titres de section (« BILAN DU TRIMESTRE ») —
+   demande utilisateur 2026-09-29. Carré plein sans arrondi : même esprit rétro. */
 .logoText {
-  font-family: var(--font-display);
-  font-weight: 900;
-  font-size: 1.1rem;
-  text-transform: uppercase;
+  font-family: var(--font-pixel);
+  font-size: 1.15rem;
   letter-spacing: 0.02em;
+  line-height: 1;
+  margin-left: 0.3rem;
 }
 
 /* Accès au récap de portefeuille — présent sur tous les écrans une fois le fonds levé.

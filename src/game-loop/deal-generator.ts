@@ -58,6 +58,15 @@ function generateAskAmount(stage: Parameters<typeof baseTicketForStage>[0]): num
   return Math.round((base * variation) / 10_000) * 10_000
 }
 
+/**
+ * Post-money telle que le ticket demandé représente 6 à 12 % du capital — fourchette
+ * réaliste en seed, et identique à l'ancienne part tirée à l'investissement.
+ */
+function generatePostMoney(askAmount: number): number {
+  const ownershipAtAsk = 0.06 + Math.random() * 0.06
+  return Math.round(askAmount / ownershipAtAsk / 100_000) * 100_000
+}
+
 function generateTags(archetypeId: FounderArchetypeId): DealTag[] {
   const structural: DealTag = { label: pickRandom(structuralSignalPool), family: 'structurel' }
   const archetypeTags = signalTagsByArchetype[archetypeId]
@@ -113,6 +122,7 @@ export function generateQuarterDeals(
   return chosenProfiles.map(({ sector, profile }, i) => {
     const archetypeId = pickRandom(archetypeIds)
     const founderName = pickRandom(founderNamesByZone[thesis.zone])
+    const askAmount = generateAskAmount(thesis.stage)
 
     return {
       id: `q${quarterNumber}-deal-${i + 1}-${profile.companyName.toLowerCase().replace(/\s+/g, '-')}`,
@@ -123,7 +133,8 @@ export function generateQuarterDeals(
       sector,
       stage: thesis.stage,
       ticker: profile.ticker,
-      askAmount: generateAskAmount(thesis.stage),
+      askAmount,
+      postMoney: generatePostMoney(askAmount),
       attemptNumber: 1 + Math.floor(Math.random() * 3),
       tags: generateTags(archetypeId),
       isDevelopedScene: i === developedSceneIndex,

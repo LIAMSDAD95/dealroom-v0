@@ -18,6 +18,7 @@ export type TourId =
   | 'lp-pitch'
   | 'deal-flow'
   | 'founder-scene'
+  | 'founder-ticket'
   | 'portfolio-report'
   | 'follow-on'
   | 'crisis'
@@ -135,6 +136,14 @@ export const onboardingTours: Record<TourId, OnboardingStep[]> = {
       target: 'founder-signals',
       title: 'Ce que tu apprends',
       text: 'Les signaux révélés par ses réponses s’affichent ici. C’est à toi d’en tirer une conviction — le jeu ne te donne jamais de note.',
+    },
+  ],
+  // Visite à part : le curseur n'apparaît qu'en fin d'entretien.
+  'founder-ticket': [
+    {
+      target: 'founder-ticket',
+      title: 'Dose ta conviction',
+      text: 'Choisis combien tu mets : plus ton ticket est gros, plus ta part l’est. Au-delà de 15 % du capital, le fondateur refuse. Un gros ticket sur le bon fondateur, c’est ce qui fait un fund-returner.',
     },
   ],
   'portfolio-report': [

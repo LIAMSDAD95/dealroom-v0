@@ -11,9 +11,11 @@ import {
   isOutOfAttention,
   STARTING_ATTENTION,
   STARTING_PATIENCE,
+  ticketRange,
 } from '../game-loop/founder-scene'
 import type { FounderQuestion } from '../signals-content/founder-questions'
 import { Icon } from './Icon'
+import { TicketSlider } from './TicketSlider'
 import { useTour } from './onboarding/onboarding-context'
 import styles from './FounderScene.module.css'
 
@@ -22,7 +24,8 @@ interface FounderSceneProps {
   /** Capital encore disponible — plafonne l'investissement en sortie de scène. */
   remainingCapital: number
   onClose: () => void
-  onInvest: (dealId: string) => void
+  /** `amount` : ticket choisi au curseur (§3.4). */
+  onInvest: (dealId: string, amount: number) => void
   /** Pitchs d'ouverture déjà entendus dans le run — mémoire tenue par App (ADR-002). */
   heardOpenings: Set<string>
 }
@@ -94,7 +97,11 @@ export function FounderScene({
   // On attend la réponse à la dernière question avant d'afficher l'encart de fin
   // (retour utilisateur 2026-09-27) : sinon il apparaît pendant « Réfléchit… ».
   const interviewOver = (outOfAttention || walkedOut) && !thinking
-  const ticketTooExpensive = deal.askAmount > remainingCapital
+  // Ticket ajustable (§3.4) : par défaut le montant demandé, ramené dans les bornes.
+  const range = ticketRange(deal, remainingCapital)
+  const [ticket, setTicket] = useState(() =>
+    Math.min(Math.max(deal.askAmount, range.min), Math.max(range.min, range.max)),
+  )
 
   function askQuestion(question: FounderQuestion) {
     if (thinking || interviewOver || !canAskQuestion(state, question)) return
@@ -219,6 +226,14 @@ export function FounderScene({
                   ? 'Vous avez épuisé sa patience. À vous de décider avec ce que vous avez appris.'
                   : 'Vous n’avez plus d’attention à consacrer à ce rendez-vous.'}
               </p>
+              {range.affordable ? (
+                <TicketSlider deal={deal} range={range} value={ticket} onChange={setTicket} />
+              ) : (
+                <p className={styles.endText}>
+                  Ton capital restant ne couvre pas le ticket minimum que ce fondateur prendrait au
+                  sérieux ({formatCapital(range.min)}).
+                </p>
+              )}
               <div className={styles.endActions}>
                 <button type="button" className={styles.declineButton} onClick={onClose}>
                   Ne pas investir
@@ -226,12 +241,10 @@ export function FounderScene({
                 <button
                   type="button"
                   className={styles.investButton}
-                  disabled={ticketTooExpensive}
-                  onClick={() => onInvest(deal.id)}
+                  disabled={!range.affordable}
+                  onClick={() => onInvest(deal.id, ticket)}
                 >
-                  {ticketTooExpensive
-                    ? 'Capital insuffisant'
-                    : `Investir (${formatCapital(deal.askAmount)})`}
+                  {range.affordable ? `Investir (${formatCapital(ticket)})` : 'Capital insuffisant'}
                 </button>
               </div>
             </div>

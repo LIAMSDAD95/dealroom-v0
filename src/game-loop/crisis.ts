@@ -34,8 +34,16 @@ export interface Crisis {
  * Tire une crise pour ce trimestre, ou null si aucune ne se déclenche.
  * Jamais avant FIRST_CRISIS_QUARTER, et jamais si le portefeuille actif est vide
  * (product-spec §3.6 : "zéro exposition = pas de scène").
+ *
+ * `alreadySeen` : événements déjà tombés dans ce run, écartés tant qu'il en reste d'autres
+ * pour ce secteur (retour utilisateur 2026-09-29 : trois fois la même alerte). La mémoire
+ * est tenue par l'appelant, comme pour le deal flow (ADR-002).
  */
-export function maybeTriggerCrisis(portfolio: PortfolioLine[], quarter: number): Crisis | null {
+export function maybeTriggerCrisis(
+  portfolio: PortfolioLine[],
+  quarter: number,
+  alreadySeen: ReadonlySet<string> = new Set(),
+): Crisis | null {
   if (quarter < FIRST_CRISIS_QUARTER) return null
 
   const lines = activeLines(portfolio)
@@ -48,8 +56,10 @@ export function maybeTriggerCrisis(portfolio: PortfolioLine[], quarter: number):
     (e) => e.affectedSectors === null || e.affectedSectors.includes(line.deal.sector),
   )
   if (eligible.length === 0) return null
+  const fresh = eligible.filter((e) => !alreadySeen.has(e.id))
+  const pool = fresh.length > 0 ? fresh : eligible
 
-  return { event: eligible[Math.floor(Math.random() * eligible.length)], line }
+  return { event: pool[Math.floor(Math.random() * pool.length)], line }
 }
 
 export function resilienceOf(line: PortfolioLine): FounderResilience {

@@ -24,6 +24,11 @@ export interface Deal {
   ticker: string
   /** Montant recherché par la startup — varie par carte autour de la base du stade, voir deal-generator.ts. */
   askAmount: number
+  /**
+   * Valorisation post-money du tour, fixée par la startup : la part du fonds est
+   * ticket / postMoney. C'est ce qui donne un sens au curseur de ticket (§3.4).
+   */
+  postMoney: number
   /** N-ième tentative de levée pour cette startup — affiché sur la carte (product-spec, screenshot). */
   attemptNumber: number
   tags: DealTag[]

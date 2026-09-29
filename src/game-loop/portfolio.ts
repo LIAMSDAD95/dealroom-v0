@@ -65,10 +65,6 @@ export interface PortfolioLine {
 
 // --- Valorisation d'entrée --------------------------------------------------------------
 
-/** Part prise à l'entrée : fourchette réaliste pour un ticket de seed/pre-seed. */
-const ENTRY_OWNERSHIP_MIN = 0.06
-const ENTRY_OWNERSHIP_MAX = 0.12
-
 export const STAGE_ROUND_LABELS: Record<Stage, string> = {
   'pre-seed': 'Pre-seed',
   seed: 'Seed',
@@ -113,8 +109,8 @@ export function createPortfolioLine(
   quarter: number,
   signalsRevealed: boolean,
 ): PortfolioLine {
-  const ownership =
-    ENTRY_OWNERSHIP_MIN + Math.random() * (ENTRY_OWNERSHIP_MAX - ENTRY_OWNERSHIP_MIN)
+  // La part dépend du ticket réellement engagé (curseur de la scène fondateur, §3.4).
+  const ownership = investedAmount / deal.postMoney
   return {
     id: deal.id,
     deal,
@@ -129,8 +125,7 @@ export function createPortfolioLine(
     isActive: true,
     realizedValue: 0,
     ownership,
-    // Arrondi à 100k€ : une valo « propre », comme sur un term sheet.
-    valuation: Math.round(investedAmount / ownership / 100_000) * 100_000,
+    valuation: deal.postMoney,
     roundLabel: STAGE_ROUND_LABELS[deal.stage],
     lastRoundQuarter: quarter,
     destiny: drawDestiny(deal.founderArchetypeId),

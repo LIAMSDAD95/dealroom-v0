@@ -24,7 +24,7 @@ interface DealFlowScreenProps {
    * doivent survivre au changement de trimestre (§3.6 — la crise cible le portefeuille).
    * `signalsRevealed` dit si le joueur avait creusé ou mené l'entretien avant d'investir.
    */
-  onCapitalDeployed: (deal: Deal, signalsRevealed: boolean) => void
+  onCapitalDeployed: (deal: Deal, signalsRevealed: boolean, amount: number) => void
   /** Bande passante déjà dépensée avant d'entrer sur le deal flow (« Revoir DD », crise §3.6). */
   bandwidthSpent?: number
   /** Nombre de lignes actives — affiché sur le bouton d'accès au récap de portefeuille. */
@@ -75,6 +75,8 @@ export function DealFlowScreen({
   // Deals dont le joueur a mené l'entretien fondateur : il en connaît les signaux équipe
   // au même titre que s'il avait creusé (§3.4), ce qui fiabilise la prédiction de crise.
   const [interviewedDealIds, setInterviewedDealIds] = useState<Set<string>>(new Set())
+  // Montant réellement investi par carte — diffère du montant demandé après le curseur.
+  const [investedAmounts, setInvestedAmounts] = useState<Record<string, number>>({})
 
   const committedOffers = offers.filter((o) => o.status === 'committed')
   const totalRaised = committedOffers.reduce((sum, o) => sum + (o.committedAmount ?? 0), 0)
@@ -94,12 +96,16 @@ export function DealFlowScreen({
   const pitchingDeal = deals.find((d) => d.id === pitchingDealId) ?? null
   const isLastQuarter = quarter >= QUARTERS_PER_RUN
 
-  function handleInvest(dealId: string) {
+  // `amount` : ticket choisi au curseur de la scène fondateur (§3.4) ; montant demandé
+  // pour une carte rapide.
+  function handleInvest(dealId: string, amount?: number) {
     const deal = deals.find((d) => d.id === dealId)
     if (!deal) return
+    const ticket = amount ?? deal.askAmount
     // Ne jamais dépasser le capital réellement levé auprès des LPs (retour utilisateur 2026-09-19).
-    if (deal.askAmount > remainingCapital) return
-    onCapitalDeployed(deal, digDealIds.has(dealId) || interviewedDealIds.has(dealId))
+    if (ticket > remainingCapital) return
+    onCapitalDeployed(deal, digDealIds.has(dealId) || interviewedDealIds.has(dealId), ticket)
+    setInvestedAmounts((a) => ({ ...a, [dealId]: ticket }))
     setStatuses((s) => ({ ...s, [dealId]: 'invested' }))
   }
 
@@ -165,6 +171,10 @@ export function DealFlowScreen({
                 status={statuses[deal.id]}
                 signalsRevealed={digDealIds.has(deal.id)}
                 freeTeamSignal={freeTeamSignal}
+                investedAmount={investedAmounts[deal.id]}
+                // Pendant l'entretien fondateur, le joueur ne voit pas les cartes : il ne
+                // doit pas perdre un deal au chrono pendant qu'il interroge (2026-09-29).
+                timerPaused={pitchingDealId !== null}
                 remainingCapital={remainingCapital}
                 onDig={() => handleDig(deal.id)}
                 onPass={() => handlePass(deal.id)}
@@ -200,8 +210,8 @@ export function DealFlowScreen({
           remainingCapital={remainingCapital}
           heardOpenings={heardOpenings}
           onClose={() => setPitchingDealId(null)}
-          onInvest={(dealId) => {
-            handleInvest(dealId)
+          onInvest={(dealId, amount) => {
+            handleInvest(dealId, amount)
             setPitchingDealId(null)
           }}
         />

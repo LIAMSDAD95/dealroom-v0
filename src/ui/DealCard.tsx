@@ -20,6 +20,10 @@ interface DealCardProps {
   onJoinPitch: () => void
   /** Perk « Instinct de chasseur » (§3.7) : le premier signal équipe est visible d'office. */
   freeTeamSignal?: boolean
+  /** Montant réellement investi — peut différer du montant demandé (curseur §3.4). */
+  investedAmount?: number
+  /** Chrono figé : entretien fondateur ouvert (retour utilisateur 2026-09-29). */
+  timerPaused?: boolean
 }
 
 function formatCapital(amount: number): string {
@@ -77,6 +81,8 @@ export function DealCard({
   onInvest,
   onJoinPitch,
   freeTeamSignal = false,
+  investedAmount,
+  timerPaused = false,
 }: DealCardProps) {
   const [secondsLeft, setSecondsLeft] = useState(DEAL_CARD_TIMER_SECONDS)
   // Chrono figé pendant une bulle d'aide : le joueur lit, il ne doit pas perdre le deal.
@@ -92,14 +98,14 @@ export function DealCard({
   // Au timeout : auto-pass, jamais de pénalité.
   useEffect(() => {
     if (deal.isDevelopedScene || status === 'passed' || status === 'invested') return
-    if (onboardingActive) return
+    if (onboardingActive || timerPaused) return
     if (secondsLeft <= 0) {
       onPassRef.current()
       return
     }
     const id = window.setTimeout(() => setSecondsLeft((s) => s - 1), 1000)
     return () => window.clearTimeout(id)
-  }, [secondsLeft, deal.isDevelopedScene, status, onboardingActive])
+  }, [secondsLeft, deal.isDevelopedScene, status, onboardingActive, timerPaused])
 
   const urgency = secondsLeft <= 10 ? 'danger' : secondsLeft <= 20 ? 'warning' : 'normal'
 
@@ -149,7 +155,7 @@ export function DealCard({
         {isInvested ? (
           <button type="button" className={styles.investedButton} disabled>
             <Icon name="check" size={14} />
-            Investi ({formatCapital(ticket)})
+            Investi ({formatCapital(investedAmount ?? ticket)})
           </button>
         ) : isPassed ? (
           <button type="button" className={styles.passedButton} disabled>
@@ -216,7 +222,7 @@ export function DealCard({
         ) : isInvested ? (
           <button type="button" className={styles.investedButton} disabled>
             <Icon name="check" size={14} />
-            Investi ({formatCapital(ticket)})
+            Investi ({formatCapital(investedAmount ?? ticket)})
           </button>
         ) : (
           <>

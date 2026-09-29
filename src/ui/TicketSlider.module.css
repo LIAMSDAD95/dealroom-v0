@@ -1,0 +1,106 @@
+/* Curseur de ticket — dans l'encart de fin de scène fondateur (fond sombre, accent
+   orange de la scène, voir decisions.md 2026-09-22). */
+
+.slider {
+  display: flex;
+  flex-direction: column;
+  gap: 0.7rem;
+  padding: 0.9rem;
+  border-radius: 10px;
+  background: #171614;
+  border: 1px solid #2f2d29;
+}
+
+.readout {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.6rem 1.4rem;
+}
+
+.item {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+}
+
+.label {
+  font-size: 0.58rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: #8a8574;
+}
+
+.amount {
+  font-family: var(--font-display);
+  font-weight: 800;
+  font-size: 1.35rem;
+  color: var(--cream);
+}
+
+.muted {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 1rem;
+  color: var(--stone);
+  line-height: 1.35rem;
+}
+
+.range {
+  width: 100%;
+  accent-color: var(--founder-scene);
+  cursor: pointer;
+}
+
+.bounds {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  font-size: 0.6rem;
+  color: #8a8574;
+}
+
+.dilution {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+.dilutionHead {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+}
+
+.dilutionValue {
+  font-size: 0.68rem;
+  font-weight: 700;
+  color: var(--stone);
+}
+
+.dilutionValue[data-near] {
+  color: var(--mustard);
+}
+
+.dilutionTrack {
+  height: 6px;
+  border-radius: 4px;
+  background: #2a2a28;
+  overflow: hidden;
+}
+
+.dilutionFill {
+  height: 100%;
+  background: var(--stone);
+  transition: width 0.1s linear;
+}
+
+.dilutionFill[data-near] {
+  background: var(--mustard);
+}
+
+.dilutionNote {
+  margin: 0;
+  font-size: 0.62rem;
+  line-height: 1.45;
+  color: #8a8574;
+}

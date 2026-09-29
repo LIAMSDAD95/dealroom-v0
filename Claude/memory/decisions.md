@@ -231,3 +231,20 @@ Contenu : chaque archétype Phase 0 a une banque de 8-10 questions écrites (que
 **Décision** : bouton flottant « ? AIDE » en bas à droite, sur tous les écrans, qui rejoue la visite de l'écran affiché — même déjà vue, et même si le joueur a choisi « Ne plus afficher l'aide » (demande explicite). Flottant plutôt que dans le header, parce que les scènes en modale (pitch LP, entretien fondateur) recouvrent le header : il est placé au-dessus d'elles (z-index 250), et si une scène est ouverte c'est sa visite qui est rejouée, pas celle de l'écran dessous. Masqué pendant une visite.
 **Raison** : demande utilisateur, pour permettre aux testeurs de revoir une explication sans vider leur stockage.
 **Domaine concerné** : UI (`ui/onboarding/`).
+
+## [2026-09-29] Nom du jeu en police pixel, ticket ajustable en scène fondateur, VO anglaise et mode clair écartés
+
+**Décision** :
+- **Version anglaise : pas en Phase 0.** Testeurs francophones ; ~9 600 mots de contenu à traduire (dont des signaux dont l'ambiguïté doit survivre à la traduction) et des libellés d'interface répartis dans 22 composants. À reconsidérer après validation si public international.
+- **Mode clair : écarté.** Le sombre est la direction artistique (§7), pas un réglage ; 155 couleurs en dur dans les CSS modules.
+- **Logo « DEALROOM »** en police pixel (Press Start 2P, celle des titres de section), 1,15rem, carré corail sans arrondi — dans `AppHeader`, donc sur tous les écrans ; aussi sur l'écran mobile.
+- **Ticket ajustable (§3.4)** en fin d'entretien fondateur : curseur par pas de 10k€ entre 50 % du montant demandé (« pris au sérieux ») et le plus petit de capital restant / 15 % du capital (au-delà, le fondateur refuse d'être dilué). Affiche ticket, part obtenue, montant demandé, post-money et une jauge de dilution vers le seuil de 15 %. Pas de limite LP par ticket (aucune contrainte LP ne porte sur la taille d'un ticket). Visite d'aide dédiée (« Dose ta conviction »).
+- **Conséquence modèle** : chaque deal porte désormais sa `postMoney` (tirée à la génération pour que le montant demandé = 6-12 % du capital) ; la part d'une ligne = ticket / post-money. Les cartes rapides gardent exactement la même distribution de part qu'avant.
+**Raison** : questions et demandes utilisateur. Le curseur rend la conviction dosable : c'est la taille du ticket sur le bon fondateur qui fait un fund-returner.
+**Domaine concerné** : UI (`AppHeader`, `TicketSlider`, `FounderScene`, `DealCard`) / Game Loop (`deal.ts`, `deal-generator.ts`, `portfolio.ts`, `founder-scene.ts`) / Signals & Content (`onboarding-content.ts`) / Technical (`App.tsx`).
+
+## [2026-09-29] Alertes trimestrielles : plus de variété, aucune répétition dans un run
+
+**Décision** : 7 alertes ajoutées (panne d'infrastructure, résiliation d'un grand compte, concurrent qui lève 50 M€, partenaire bancaire qui coupe, chute de la consommation, litige de brevet, fuite de données) — 12 au total, au moins 6 possibles par secteur (SaaS 8, fintech 8, marketplace 8, deeptech 6, consumer 6). `maybeTriggerCrisis` reçoit les événements déjà vécus dans le run (mémoire dans `App`, comme les noms de startup) et les écarte tant qu'il en reste. Réactions de fondateur réécrites sans pronom (« — le board a été informé dans l'heure ») : les fondateurs ne sont pas tous des hommes.
+**Raison** : retour de playtest — 3 alertes sur 3 étaient la démission du profil senior. Cause : aucune mémoire entre trimestres, et seulement 3 alertes possibles pour une ligne SaaS. Mesuré après correction : 0 run avec répétition sur 20 000 simulés (5 crises max par run, Q4-Q8).
+**Domaine concerné** : Signals & Content (`crisis-events.ts`) / Game Loop (`crisis.ts`) / Technical (`App.tsx`).
