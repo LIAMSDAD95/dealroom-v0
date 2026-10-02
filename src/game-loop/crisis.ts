@@ -10,8 +10,15 @@ import type { PortfolioLine } from './portfolio'
 import type { CrisisLineEffect } from './portfolio-evolution'
 import { activeLines } from './portfolio'
 
-/** Aucune crise avant ce trimestre (voir Claude/memory/decisions.md, 2026-09-24). */
-export const FIRST_CRISIS_QUARTER = 4
+/**
+ * Version de playtest (décision utilisateur 2026-10-03) : la première alerte tombe
+ * toujours à ce trimestre, pour que chaque testeur rencontre la mécanique de crise.
+ * Aucune crise avant.
+ */
+export const FORCED_CRISIS_QUARTER = 3
+
+/** À partir de ce trimestre, les crises sont tirées au hasard. */
+export const FIRST_RANDOM_CRISIS_QUARTER = 4
 
 /** Probabilité qu'une crise se déclenche à un trimestre éligible. */
 const CRISIS_PROBABILITY = 0.5
@@ -32,8 +39,9 @@ export interface Crisis {
 
 /**
  * Tire une crise pour ce trimestre, ou null si aucune ne se déclenche.
- * Jamais avant FIRST_CRISIS_QUARTER, et jamais si le portefeuille actif est vide
- * (product-spec §3.6 : "zéro exposition = pas de scène").
+ * Jamais avant FORCED_CRISIS_QUARTER, garantie à ce trimestre, puis aléatoire à partir de
+ * FIRST_RANDOM_CRISIS_QUARTER. Jamais si le portefeuille actif est vide (product-spec §3.6 :
+ * "zéro exposition = pas de scène") — y compris au trimestre forcé.
  *
  * `alreadySeen` : événements déjà tombés dans ce run, écartés tant qu'il en reste d'autres
  * pour ce secteur (retour utilisateur 2026-09-29 : trois fois la même alerte). La mémoire
@@ -44,11 +52,13 @@ export function maybeTriggerCrisis(
   quarter: number,
   alreadySeen: ReadonlySet<string> = new Set(),
 ): Crisis | null {
-  if (quarter < FIRST_CRISIS_QUARTER) return null
+  if (quarter < FORCED_CRISIS_QUARTER) return null
 
   const lines = activeLines(portfolio)
   if (lines.length === 0) return null
-  if (Math.random() >= CRISIS_PROBABILITY) return null
+  const forced = quarter === FORCED_CRISIS_QUARTER
+  if (!forced && quarter < FIRST_RANDOM_CRISIS_QUARTER) return null
+  if (!forced && Math.random() >= CRISIS_PROBABILITY) return null
 
   const line = lines[Math.floor(Math.random() * lines.length)]
   // Seuls les événements qui touchent le secteur de la ligne ciblée sont éligibles.

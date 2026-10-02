@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import type { Sector, Stage, Thesis, Zone } from '../game-loop/thesis'
 import { MAX_SECTORS, MIN_SECTORS, sectorOptions, stageOptions, zoneOptions } from '../game-loop/thesis'
+import { MAX_PSEUDO_LENGTH } from '../persistence/player-identity'
 import { AppHeader } from './AppHeader'
 import { Chip } from './Chip'
 import { useTour } from './onboarding/onboarding-context'
@@ -9,11 +10,14 @@ import styles from './ThesisDeclaration.module.css'
 interface ThesisDeclarationProps {
   /** Numéro du fonds en chiffres romains (« I », « II »…). */
   fundLabel: string
-  onConfirm: (thesis: Thesis) => void
+  /** Pseudo déjà saisi lors d'un run précédent — prérempli, modifiable. */
+  initialPseudo: string
+  onConfirm: (thesis: Thesis, pseudo: string) => void
 }
 
-export function ThesisDeclaration({ fundLabel, onConfirm }: ThesisDeclarationProps) {
+export function ThesisDeclaration({ fundLabel, initialPseudo, onConfirm }: ThesisDeclarationProps) {
   useTour('thesis')
+  const [pseudo, setPseudo] = useState(initialPseudo)
   const [sectors, setSectors] = useState<Sector[]>([])
   const [stage, setStage] = useState<Stage | null>(null)
   const [zone, setZone] = useState<Zone | null>(null)
@@ -35,7 +39,7 @@ export function ThesisDeclaration({ fundLabel, onConfirm }: ThesisDeclarationPro
 
   function handleConfirm() {
     if (sectors.length >= MIN_SECTORS && stage && zone) {
-      onConfirm({ sectors, stage, zone })
+      onConfirm({ sectors, stage, zone }, pseudo)
     }
   }
 
@@ -49,6 +53,22 @@ export function ThesisDeclaration({ fundLabel, onConfirm }: ThesisDeclarationPro
         <p className={styles.subtitle}>
           Un engagement pour tout le run. Dévier de votre thèse coûte de la confiance de vos LPs.
         </p>
+
+        <section className={styles.group}>
+          <label className={styles.groupLabel} htmlFor="player-pseudo">
+            TON PSEUDO — FACULTATIF
+          </label>
+          <input
+            id="player-pseudo"
+            type="text"
+            className={styles.pseudoInput}
+            value={pseudo}
+            maxLength={MAX_PSEUDO_LENGTH}
+            placeholder="Ex. Camille, ou ton pseudo X"
+            autoComplete="nickname"
+            onChange={(event) => setPseudo(event.target.value)}
+          />
+        </section>
 
         <section className={styles.group} data-onboarding="thesis-sectors">
           <p className={styles.groupLabel}>
@@ -103,6 +123,14 @@ export function ThesisDeclaration({ fundLabel, onConfirm }: ThesisDeclarationPro
         >
           VALIDER LA THÈSE →
         </button>
+
+        {/* Information des testeurs sur la collecte (§8.4) — texte validé 2026-10-03. */}
+        <p className={styles.dataNotice}>
+          Pendant ce playtest, tes décisions de jeu (deals creusés, investissements, choix en
+          crise, résultat final) sont enregistrées avec ton pseudo pour améliorer DEALROOM. Rien
+          d’autre n’est collecté : ni email, ni données de navigation. Sans pseudo, ton run est
+          enregistré de façon anonyme.
+        </p>
       </div>
     </main>
   )

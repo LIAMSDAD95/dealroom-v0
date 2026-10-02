@@ -343,13 +343,14 @@
 .decisionTitle {
   font-family: var(--font-display);
   font-weight: 800;
-  font-size: 0.85rem;
+  /* Agrandi (retour utilisateur 2026-10-03) : c'est le moment clé de l'écran. */
+  font-size: 1.5rem;
   letter-spacing: 0.04em;
   color: var(--cream);
 }
 
 .decisionSub {
-  font-size: 0.55rem;
+  font-size: 0.62rem;
   letter-spacing: 0.06em;
   color: #8a8574;
 }

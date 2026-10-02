@@ -248,3 +248,18 @@ Contenu : chaque archétype Phase 0 a une banque de 8-10 questions écrites (que
 **Décision** : 7 alertes ajoutées (panne d'infrastructure, résiliation d'un grand compte, concurrent qui lève 50 M€, partenaire bancaire qui coupe, chute de la consommation, litige de brevet, fuite de données) — 12 au total, au moins 6 possibles par secteur (SaaS 8, fintech 8, marketplace 8, deeptech 6, consumer 6). `maybeTriggerCrisis` reçoit les événements déjà vécus dans le run (mémoire dans `App`, comme les noms de startup) et les écarte tant qu'il en reste. Réactions de fondateur réécrites sans pronom (« — le board a été informé dans l'heure ») : les fondateurs ne sont pas tous des hommes.
 **Raison** : retour de playtest — 3 alertes sur 3 étaient la démission du profil senior. Cause : aucune mémoire entre trimestres, et seulement 3 alertes possibles pour une ligne SaaS. Mesuré après correction : 0 run avec répétition sur 20 000 simulés (5 crises max par run, Q4-Q8).
 **Domaine concerné** : Signals & Content (`crisis-events.ts`) / Game Loop (`crisis.ts`) / Technical (`App.tsx`).
+
+## [2026-10-03] Pseudo du testeur et mention de collecte sur l'écran de thèse
+
+**Décision** : champ « TON PSEUDO — FACULTATIF » en haut de l'écran de thèse (24 caractères max, prérempli au run suivant), et identifiant aléatoire créé au premier lancement (`dealroom.player.v1`, `persistence/player-identity.ts`). Mention de collecte en fin de page : « Pendant ce playtest, tes décisions de jeu (deals creusés, investissements, choix en crise, résultat final) sont enregistrées avec ton pseudo pour améliorer DEALROOM. Rien d'autre n'est collecté : ni email, ni données de navigation. Sans pseudo, ton run est enregistré de façon anonyme. » Hébergement prévu : Vercel. Destination des données : Supabase (à brancher).
+**Raison** : décisions utilisateur (pseudo + identifiant le 2026-09-29, placement le 2026-10-03). Le pseudo n'est pas un champ libre de dialogue (règle #4) : il ne touche pas au système de signaux.
+**Domaine concerné** : Persistence (`player-identity.ts`) / UI (`ThesisDeclaration`) / Technical (`App.tsx`).
+
+## [2026-10-03] Carte PITCH en orange, première alerte forcée au Q3, « Votre décision » agrandi
+
+**Décision** :
+- **Carte PITCH** : ruban PITCH dans l'orange du carré du logo (`--coral`), texte blanc, contour du ruban noir uniquement, police agrandie ; contour de carte 3px `--coral` (ombre noire standard). Ajusté le même jour : d'abord fait avec l'orange de la scène fondateur, corrigé à la demande de l'utilisateur. Remplace la règle « pas de couleur différente » du §7.3. Une carte PITCH investie reprend le contour vert.
+- **Crises, version de playtest** : la première alerte tombe **toujours au Q3** (`FORCED_CRISIS_QUARTER`), puis tirage aléatoire (50 %) à partir du Q4. Remplace « aléatoire à partir du Q4 » (2026-09-24). La règle « zéro exposition = pas de scène » prime : sans ligne active au Q3, pas d'alerte forcée (et elle n'est pas reportée).
+- **Écran de crise** : titre « VOTRE DÉCISION » passé de 0,85rem à 1,5rem.
+**Raison** : demandes utilisateur — que la scène d'entretien se repère d'un coup d'œil, que chaque testeur rencontre la mécanique de crise, et que le moment de décision ressorte.
+**Domaine concerné** : UI (`DealCard.module.css`, `CrisisScene.module.css`) / Game Loop (`crisis.ts`).

@@ -238,9 +238,19 @@
   box-shadow: var(--shadow-offset-card) var(--shadow-offset-card) 0 rgba(58, 138, 92, 0.35);
 }
 
-/* Carte scène développée (product-spec §7.3 : ruban diagonal, pas de couleur différente) */
+/* Carte scène développée : ruban diagonal (§7.3), contour et ruban dans l'orange du logo
+   (--coral) pour la distinguer d'un coup d'œil (retours utilisateur 2026-10-03, remplace
+   « pas de couleur différente »). */
 .card[data-pitch='true'] {
   padding-top: 1.5rem;
+  border-width: 3px;
+  border-color: var(--coral);
+}
+
+/* Une fois investie, la carte PITCH prend le contour vert comme les autres. */
+.card[data-pitch='true'][data-invested] {
+  border-color: #3a8a5c;
+  box-shadow: var(--shadow-offset-card) var(--shadow-offset-card) 0 rgba(58, 138, 92, 0.35);
 }
 
 /* Sur la carte PITCH, les états passé/investi remplacent le CTA : ils doivent rester
@@ -252,16 +262,19 @@
 
 .pitchRibbon {
   position: absolute;
-  top: 14px;
-  right: -32px;
-  width: 130px;
+  top: 18px;
+  right: -38px;
+  width: 150px;
   transform: rotate(45deg);
-  background: var(--border-color);
-  color: var(--cream);
+  /* Même orange que le carré du logo, texte blanc, contour noir uniquement. */
+  background: var(--coral);
+  border-top: 2px solid var(--border-color);
+  border-bottom: 2px solid var(--border-color);
+  color: #ffffff;
   font-family: var(--font-pixel);
-  font-size: 0.6rem;
+  font-size: 0.7rem;
   text-align: center;
-  padding: 0.3rem 0;
+  padding: 0.35rem 0;
 }
 
 .specs {

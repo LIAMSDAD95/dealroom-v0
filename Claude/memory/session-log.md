@@ -68,3 +68,21 @@
 **État laissé** : non commité.
 **Prochaine étape** : collecte des données de playtest (§8.4) puis mécanique de co-invest.
 **Retour de playtest (2026-09-29)** : 3 alertes identiques dans un run → 7 alertes ajoutées + mémoire du run (voir decisions.md). 0 répétition sur 20 000 runs simulés ; 2 runs complets en navigateur sans erreur.
+
+## [2026-09-29] Fin de session — collecte des données de playtest (§8.4) en cours de cadrage
+
+**État** : tout est commité et poussé (`e4447c5` sur `main`), sauf cette entrée de journal.
+**En discussion, rien de codé** :
+- Destination retenue en principe : **Supabase** (l'utilisateur a déjà un compte), plutôt que Google Sheets (confirmation d'envoi non garantie). Pause des projets gratuits après 7 jours d'inactivité → prévu : file d'attente locale des runs non envoyés + renvoi à la visite suivante, relance manuelle avant chaque vague de testeurs ou ping hebdo via GitHub Actions, et bouton « Copier mon rapport de run » en dernier recours.
+- Sécurité : seule la clé `anon` dans le jeu, règles « ajout seulement » ; jamais la clé `service_role`.
+- Contenu : fil d'événements niveau 2 = décisions de jeu (creuser, investir + montant/part, follow-on, crises, abandon, clôture), pas de tracking de clics.
+**Tranché** : **oui** au pseudo facultatif (demandé une fois au lancement) + identifiant aléatoire par navigateur, pour relier un run à un testeur et suivre Fonds I → Fonds II.
+**Hébergement** : probablement **Vercel**.
+**À faire** : proposer la phrase qui prévient les testeurs de l'enregistrement — Claude la propose (placement suggéré : sur l'écran du pseudo, au lancement).
+**Prochaine étape** : préparer le script SQL (table + RLS insert-only), l'utilisateur crée le projet et fournit URL + clé anon ; puis coder l'enregistrement. Ensuite : mécanique de co-invest.
+
+## [2026-10-03] Pseudo + mention de collecte
+
+**Fait** : champ pseudo facultatif sur l'écran de thèse, identifiant aléatoire par navigateur, mention de collecte en fin de page. Vérifié en navigateur (identifiant créé au lancement, pseudo nettoyé et sauvegardé à la validation, prérempli et même identifiant après rechargement ; visite guidée de la thèse intacte) ; build OK. Non commité.
+**Attention** : la mention annonce un enregistrement qui n'est pas encore branché — à finir (Supabase) avant d'envoyer le jeu aux testeurs.
+**Ajout (2026-10-03)** : carte PITCH en orange, première alerte forcée au Q3 puis aléatoire, « VOTRE DÉCISION » agrandi (voir decisions.md). Vérifié : 3 runs sur 3 avec une alerte au Q3, 2 sur 3 au Q4 ; captures OK ; build OK. Non commité (avec le pseudo).

@@ -23,6 +23,8 @@ import {
 import type { ClosingMetrics, LineOutcome } from '../game-loop/run-closing'
 import { closingMetrics, resolveRunClose } from '../game-loop/run-closing'
 import { loadMeta, saveMeta } from '../persistence/meta-storage'
+import type { PlayerIdentity } from '../persistence/player-identity'
+import { loadPlayer, savePseudo } from '../persistence/player-identity'
 import type { PortfolioLine } from '../game-loop/portfolio'
 import { activeLines, createPortfolioLine } from '../game-loop/portfolio'
 import type { FollowOnOffer, QuarterEvolution } from '../game-loop/portfolio-evolution'
@@ -75,6 +77,9 @@ type Screen =
 
 interface RunProps {
   meta: MetaProgress
+  /** Identité du testeur (§8.4) — vit au-dessus du run, d'un fonds à l'autre. */
+  player: PlayerIdentity
+  onPseudoChange: (pseudo: string) => void
   /** Passe au fonds suivant avec la méta-progression gagnée (déjà sauvegardée). */
   onStartNextFund: (next: MetaProgress) => void
 }
@@ -83,7 +88,7 @@ interface RunProps {
  * Un run = un fonds. Monté avec `key={meta.fundNumber}` : lancer le fonds suivant remonte
  * une instance neuve, donc tout l'état du run repart à zéro sans réinitialisation manuelle.
  */
-function Run({ meta, onStartNextFund }: RunProps) {
+function Run({ meta, player, onPseudoChange, onStartNextFund }: RunProps) {
   const fundLabel = formatFundNumber(meta.fundNumber)
   const [screen, setScreen] = useState<Screen>({ name: 'thesis' })
   // Les LPs qui ont reconduit au fonds précédent sont engagés d'office (§3.8).
@@ -217,7 +222,11 @@ function Run({ meta, onStartNextFund }: RunProps) {
     currentScreen = (
       <ThesisDeclaration
         fundLabel={fundLabel}
-        onConfirm={(thesis) => setScreen({ name: 'fundraising', thesis })}
+        initialPseudo={player.pseudo}
+        onConfirm={(thesis, pseudo) => {
+          onPseudoChange(pseudo)
+          setScreen({ name: 'fundraising', thesis })
+        }}
       />
     )
   } else if (screen.name === 'fundraising') {
@@ -394,10 +403,18 @@ function Run({ meta, onStartNextFund }: RunProps) {
 function App() {
   // Méta-progression relue une fois au démarrage (Persistence, §8.3).
   const [meta, setMeta] = useState<MetaProgress>(loadMeta)
+  // Identifiant aléatoire + pseudo facultatif du testeur (décision 2026-09-29).
+  const [player, setPlayer] = useState<PlayerIdentity>(loadPlayer)
   const isDesktop = useIsDesktop()
   return (
     <OnboardingProvider>
-      <Run key={meta.fundNumber} meta={meta} onStartNextFund={setMeta} />
+      <Run
+        key={meta.fundNumber}
+        meta={meta}
+        player={player}
+        onPseudoChange={(pseudo) => setPlayer((p) => savePseudo(p, pseudo))}
+        onStartNextFund={setMeta}
+      />
       {/* Recouvre sans démonter : la partie reprend intacte si la fenêtre est agrandie (§8.1). */}
       {!isDesktop && <DesktopOnlyScreen />}
     </OnboardingProvider>
