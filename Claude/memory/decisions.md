@@ -258,8 +258,14 @@ Contenu : chaque archétype Phase 0 a une banque de 8-10 questions écrites (que
 ## [2026-10-03] Carte PITCH en orange, première alerte forcée au Q3, « Votre décision » agrandi
 
 **Décision** :
-- **Carte PITCH** : ruban PITCH dans l'orange du carré du logo (`--coral`), texte blanc, contour du ruban noir uniquement, police agrandie ; contour de carte 3px `--coral` (ombre noire standard). Ajusté le même jour : d'abord fait avec l'orange de la scène fondateur, corrigé à la demande de l'utilisateur. Remplace la règle « pas de couleur différente » du §7.3. Une carte PITCH investie reprend le contour vert.
+- **Carte PITCH** : ruban PITCH dans l'orange du carré du logo (`--coral`), texte blanc, contour du ruban noir uniquement (lignes du dessus et du dessous), police agrandie. **La carte elle-même garde son contour noir standard** : seul le ruban est en couleur (précisé par l'utilisateur, après deux essais avec un contour de carte orange). Remplace la règle « pas de couleur différente » du §7.3. Une carte PITCH investie reprend le contour vert.
 - **Crises, version de playtest** : la première alerte tombe **toujours au Q3** (`FORCED_CRISIS_QUARTER`), puis tirage aléatoire (50 %) à partir du Q4. Remplace « aléatoire à partir du Q4 » (2026-09-24). La règle « zéro exposition = pas de scène » prime : sans ligne active au Q3, pas d'alerte forcée (et elle n'est pas reportée).
 - **Écran de crise** : titre « VOTRE DÉCISION » passé de 0,85rem à 1,5rem.
 **Raison** : demandes utilisateur — que la scène d'entretien se repère d'un coup d'œil, que chaque testeur rencontre la mécanique de crise, et que le moment de décision ressorte.
 **Domaine concerné** : UI (`DealCard.module.css`, `CrisisScene.module.css`) / Game Loop (`crisis.ts`).
+
+## [2026-10-03] Playtest limité à deux fonds
+
+**Décision** : le playtest s'arrête après la clôture du Fonds II (`PLAYTEST_LAST_FUND = 2`, `meta.ts`). À la clôture du Fonds II, le bouton devient « TERMINER LE PLAYTEST » et mène à un écran de fin (`PlaytestCompleteScreen`) : remerciement avec le pseudo, palier de réputation et leçons gagnées, invitation à donner son avis. Cet écran s'affiche aussi à chaque rechargement ensuite (méta-progression à fundNumber 3). Il n'y a pas de bouton pour recommencer : pour retester, vider le localStorage (`dealroom.meta.v1`).
+**Raison** : choix utilisateur entre trois options (illimité / arrêt après le Fonds I / arrêt après le Fonds II). Deux fonds permettent de mesurer l'apprentissage du Fonds I au Fonds II (objectif PRD §3 sur les signaux) sans que le testeur épuise le contenu (mêmes LPs, mêmes banques de startups et de questions). Aucune décision antérieure ne limitait le jeu au Fonds I.
+**Domaine concerné** : Game Loop (`meta.ts`) / UI (`RunClosingScreen`, `PlaytestCompleteScreen`) / Technical (`App.tsx`).

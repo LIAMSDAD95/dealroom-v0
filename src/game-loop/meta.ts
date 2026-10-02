@@ -27,6 +27,17 @@ export interface MetaProgress {
   returningLps: ReturningLp[]
 }
 
+/**
+ * Version de playtest (décision utilisateur 2026-10-03) : le jeu s'arrête après ce fonds.
+ * Deux fonds suffisent à mesurer l'apprentissage (Fonds I → Fonds II) sans user le contenu.
+ */
+export const PLAYTEST_LAST_FUND = 2
+
+/** true une fois le dernier fonds du playtest clôturé. */
+export function isPlaytestComplete(meta: MetaProgress): boolean {
+  return meta.fundNumber > PLAYTEST_LAST_FUND
+}
+
 export const INITIAL_META: MetaProgress = {
   fundNumber: 1,
   reputation: 0,

@@ -27,6 +27,8 @@ interface RunClosingScreenProps {
   lpReports: LpReport[]
   gains: RunGains
   totalRaised: number
+  /** Dernier fonds du playtest : le bouton termine le playtest au lieu d'ouvrir le suivant. */
+  isLastFund: boolean
   onStartNextFund: () => void
 }
 
@@ -100,6 +102,7 @@ export function RunClosingScreen({
   lpReports,
   gains,
   totalRaised,
+  isLastFund,
   onStartNextFund,
 }: RunClosingScreenProps) {
   useTour('run-closing')
@@ -273,7 +276,9 @@ export function RunClosingScreen({
 
         <div className={styles.ctaRow}>
           <button type="button" className={styles.ctaButton} onClick={onStartNextFund}>
-            LANCER LE FONDS {formatFundNumber(fundNumber + 1)} →
+            {isLastFund
+              ? 'TERMINER LE PLAYTEST →'
+              : `LANCER LE FONDS ${formatFundNumber(fundNumber + 1)} →`}
           </button>
         </div>
       </div>

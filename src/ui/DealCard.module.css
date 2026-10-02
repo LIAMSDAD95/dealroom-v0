@@ -238,19 +238,10 @@
   box-shadow: var(--shadow-offset-card) var(--shadow-offset-card) 0 rgba(58, 138, 92, 0.35);
 }
 
-/* Carte scène développée : ruban diagonal (§7.3), contour et ruban dans l'orange du logo
-   (--coral) pour la distinguer d'un coup d'œil (retours utilisateur 2026-10-03, remplace
-   « pas de couleur différente »). */
+/* Carte scène développée : contour standard ; seul le ruban diagonal (§7.3) est en
+   couleur — orange du logo, bordé de noir (retours utilisateur 2026-10-03). */
 .card[data-pitch='true'] {
   padding-top: 1.5rem;
-  border-width: 3px;
-  border-color: var(--coral);
-}
-
-/* Une fois investie, la carte PITCH prend le contour vert comme les autres. */
-.card[data-pitch='true'][data-invested] {
-  border-color: #3a8a5c;
-  box-shadow: var(--shadow-offset-card) var(--shadow-offset-card) 0 rgba(58, 138, 92, 0.35);
 }
 
 /* Sur la carte PITCH, les états passé/investi remplacent le CTA : ils doivent rester

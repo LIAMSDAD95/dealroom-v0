@@ -16,7 +16,9 @@ import type { CrisisRecord, MetaProgress, RunGains } from '../game-loop/meta'
 import {
   computeRunGains,
   hasPerk,
+  isPlaytestComplete,
   nextMeta,
+  PLAYTEST_LAST_FUND,
   PREMIER_FONDS_CONFIDENCE_BONUS,
   unlockedAngles,
 } from '../game-loop/meta'
@@ -44,6 +46,7 @@ import { PortfolioPanel } from '../ui/PortfolioPanel'
 import { PortfolioScreen } from '../ui/PortfolioScreen'
 import { RunClosingScreen } from '../ui/RunClosingScreen'
 import { DesktopOnlyScreen } from '../ui/DesktopOnlyScreen'
+import { PlaytestCompleteScreen } from '../ui/PlaytestCompleteScreen'
 import { OnboardingProvider } from '../ui/onboarding/OnboardingProvider'
 import { useIsDesktop } from './useIsDesktop'
 
@@ -347,6 +350,7 @@ function Run({ meta, player, onPseudoChange, onStartNextFund }: RunProps) {
         lpReports={screen.lpReports}
         gains={screen.gains}
         totalRaised={totalRaised}
+        isLastFund={meta.fundNumber >= PLAYTEST_LAST_FUND}
         onStartNextFund={() => onStartNextFund(screen.next)}
       />
     )
@@ -408,13 +412,18 @@ function App() {
   const isDesktop = useIsDesktop()
   return (
     <OnboardingProvider>
-      <Run
-        key={meta.fundNumber}
-        meta={meta}
-        player={player}
-        onPseudoChange={(pseudo) => setPlayer((p) => savePseudo(p, pseudo))}
-        onStartNextFund={setMeta}
-      />
+      {/* Fin du playtest après le Fonds II, y compris après un rechargement (2026-10-03). */}
+      {isPlaytestComplete(meta) ? (
+        <PlaytestCompleteScreen meta={meta} pseudo={player.pseudo} />
+      ) : (
+        <Run
+          key={meta.fundNumber}
+          meta={meta}
+          player={player}
+          onPseudoChange={(pseudo) => setPlayer((p) => savePseudo(p, pseudo))}
+          onStartNextFund={setMeta}
+        />
+      )}
       {/* Recouvre sans démonter : la partie reprend intacte si la fenêtre est agrandie (§8.1). */}
       {!isDesktop && <DesktopOnlyScreen />}
     </OnboardingProvider>
